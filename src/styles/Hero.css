@@ -1,0 +1,132 @@
+@import '@fontsource/poppins';
+
+.hero {
+  min-height: 100vh;
+  padding-top: 80px;
+  background: linear-gradient(135deg, #fff5f5 0%, #fff9e6 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 1rem;
+  position: relative;
+}
+
+.hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  animation: fadeIn 1s ease-out;
+}
+
+.hero-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.hero-subtitle {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.25rem;
+  color: #666;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.hero-button {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  animation: fadeIn 1s ease-out 0.5s backwards;
+}
+
+.hero-button:hover {
+  background: #ff5252;
+  transform: translateY(-2px);
+}
+
+.floating-emojis {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.emoji {
+  position: absolute;
+  font-size: 2.5rem;
+  opacity: 0.3;
+  animation: float 6s ease-in-out infinite;
+}
+
+.emoji-1 {
+  top: 20%;
+  left: 15%;
+  animation-delay: 0s;
+}
+
+.emoji-2 {
+  top: 30%;
+  right: 15%;
+  animation-delay: -2s;
+}
+
+.emoji-3 {
+  bottom: 25%;
+  left: 50%;
+  animation-delay: -4s;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.125rem;
+  }
+
+  .hero-button {
+    font-size: 1rem;
+    padding: 0.875rem 2rem;
+  }
+
+  .emoji {
+    font-size: 2rem;
+  }
+}
