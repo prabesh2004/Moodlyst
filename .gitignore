@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Personal learning and context files
+learn.md
+PROJECT_CONTEXT.md
