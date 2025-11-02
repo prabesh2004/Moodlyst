@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
-const Hero = () => {
+const Hero = ({ user }) => {
+  const navigate = useNavigate();
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -64,13 +66,13 @@ const Hero = () => {
               className="font-poppins text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-900 mb-4 leading-tight"
               variants={textVariants}
             >
-              Track Your City's Mood, One Smile at a Time
+              Discover Events Through Real Vibes, Track Your Emotional Journey
             </motion.h1>
             <motion.p 
               className="font-poppins text-sm md:text-base text-gray-600 mb-6 leading-relaxed"
               variants={textVariants}
             >
-              Discover local happiness trends, share your mood, and connect with your community through real-time sentiment tracking.
+              Check in twice daily, share what you're experiencing, and discover the best local events through authentic mood ratings. Get personal insights while exploring your community's emotional pulse.
             </motion.p>
             <motion.button 
               className="font-poppins text-sm font-medium bg-gray-900 text-white px-6 py-2.5 rounded-lg 
@@ -78,8 +80,9 @@ const Hero = () => {
               variants={textVariants}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => user ? navigate('/dashboard') : navigate('/login')}
             >
-              Get Started
+              {user ? 'Log Your Mood' : 'Get Started'}
             </motion.button>
           </motion.div>
 

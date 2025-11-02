@@ -31,23 +31,23 @@ const HowItWorks = () => {
   const steps = [
     {
       number: "01",
-      title: "Log Your Mood",
-      description: "Select from a range of emotions - happy, sad, energetic, calm, and more. It takes just seconds.",
-      emoji: "😊",
+      title: "Check-In Twice Daily",
+      description: "Get notified at 10 AM and 10 PM to log your mood. Share how you're feeling and what you're experiencing - events, places, moments.",
+      emoji: "⏰",
       color: "from-rose-400 to-pink-400"
     },
     {
       number: "02",
-      title: "See City Trends",
-      description: "Discover how your community is feeling in real-time. View mood patterns across different areas.",
-      emoji: "🗺️",
+      title: "Tag Events & Locations",
+      description: "At a concert? Visiting a cafe? Tag the event or place and rate the vibe in real-time. Your mood becomes part of the event's authentic rating.",
+      emoji: "🎉",
       color: "from-purple-400 to-indigo-400"
     },
     {
       number: "03",
-      title: "Connect & Share",
-      description: "Join conversations, share positivity, and be part of a community that cares about collective well-being.",
-      emoji: "🤝",
+      title: "Discover & Grow",
+      description: "Find the best events based on real emotions, track your personal mood patterns, and get insights to improve your emotional well-being.",
+      emoji: "🌟",
       color: "from-blue-400 to-cyan-400"
     }
   ];
@@ -66,7 +66,7 @@ const HowItWorks = () => {
             How It Works
           </h2>
           <p className="font-poppins text-base text-gray-600 max-w-2xl mx-auto">
-            Join thousands in tracking collective happiness. Simple, fast, and meaningful.
+            Track your emotions, discover authentic experiences, and grow through self-awareness.
           </p>
         </motion.div>
 
