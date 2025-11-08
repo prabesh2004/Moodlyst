@@ -52,7 +52,7 @@ const Hero = ({ user }) => {
   };
 
   return (
-    <section className="min-h-screen pt-12 bg-white relative flex items-start overflow-hidden">
+    <section className="min-h-screen pt-24 bg-white relative flex items-start overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-16 relative z-10 w-full">
         <motion.div 
           className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"

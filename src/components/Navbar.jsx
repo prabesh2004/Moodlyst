@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { IoMdHome, IoMdStar, IoMdPeople, IoMdLogIn } from 'react-icons/io';
 
 const Navbar = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,11 +22,11 @@ const Navbar = ({ user }) => {
   }, []);
 
   return (
-    <nav className={`fixed top-2 sm:top-4 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] sm:w-[calc(100%-2rem)] md:w-[calc(100%-4rem)] max-w-7xl backdrop-blur-md shadow-lg rounded-xl sm:rounded-2xl z-50 transition-all duration-300 ${
-      scrolled ? 'bg-white/40' : 'bg-white/80'
+    <nav className={`fixed top-0 left-0 right-0 backdrop-blur-md shadow-sm z-50 transition-all duration-300 border-b border-gray-200 ${
+      scrolled ? 'bg-white/95' : 'bg-white/90'
     }`}>
-      <div className="px-4 sm:px-6 lg:px-12">
-        <div className="flex justify-between items-center h-14 sm:h-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="shrink-0 cursor-pointer" onClick={() => navigate('/')}>
             <span className="font-poppins text-base sm:text-lg font-bold text-gray-800">
@@ -34,15 +35,18 @@ const Navbar = ({ user }) => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-5">
-            <a href="#home" className="font-poppins text-xs text-gray-600 hover:text-rose-500 transition-colors duration-300">
-              Home
+          <div className="hidden md:flex items-center space-x-6">
+            <a href="#home" className="flex items-center gap-2 font-poppins text-sm text-gray-600 hover:text-rose-500 transition-colors duration-300">
+              <IoMdHome size={20} />
+              <span>Home</span>
             </a>
-            <a href="#features" className="font-poppins text-xs text-gray-600 hover:text-rose-500 transition-colors duration-300">
-              Features
+            <a href="#features" className="flex items-center gap-2 font-poppins text-sm text-gray-600 hover:text-rose-500 transition-colors duration-300">
+              <IoMdStar size={20} />
+              <span>Features</span>
             </a>
-            <a href="#community" className="font-poppins text-xs text-gray-600 hover:text-rose-500 transition-colors duration-300">
-              Community
+            <a href="#community" className="flex items-center gap-2 font-poppins text-sm text-gray-600 hover:text-rose-500 transition-colors duration-300">
+              <IoMdPeople size={20} />
+              <span>Community</span>
             </a>
             
             {user ? (
@@ -63,7 +67,7 @@ const Navbar = ({ user }) => {
                     {user.displayName?.[0] || user.email?.[0] || 'U'}
                   </div>
                 )}
-                <span className="font-poppins text-xs text-gray-700 font-medium">
+                <span className="font-poppins text-sm text-gray-700 font-medium">
                   {user.displayName?.split(' ')[0] || user.email?.split('@')[0]}
                 </span>
               </div>
@@ -71,9 +75,10 @@ const Navbar = ({ user }) => {
               // Show Login button when not logged in
               <button 
                 onClick={() => navigate('/login')}
-                className="font-poppins text-xs bg-rose-500 text-white px-4 py-1.5 rounded-full hover:bg-rose-600 transition-colors duration-300"
+                className="flex items-center gap-2 font-poppins text-sm bg-rose-500 text-white px-5 py-2 rounded-full hover:bg-rose-600 transition-colors duration-300"
               >
-                Login
+                <IoMdLogIn size={20} />
+                <span>Login</span>
               </button>
             )}
           </div>
@@ -130,24 +135,27 @@ const Navbar = ({ user }) => {
             <div className="flex flex-col space-y-3">
               <a 
                 href="#home" 
-                className="font-poppins text-sm text-gray-600 hover:text-rose-500 transition-colors py-2"
+                className="flex items-center gap-2 font-poppins text-sm text-gray-600 hover:text-rose-500 transition-colors py-2"
                 onClick={() => setIsOpen(false)}
               >
-                Home
+                <IoMdHome size={20} />
+                <span>Home</span>
               </a>
               <a 
                 href="#features" 
-                className="font-poppins text-sm text-gray-600 hover:text-rose-500 transition-colors py-2"
+                className="flex items-center gap-2 font-poppins text-sm text-gray-600 hover:text-rose-500 transition-colors py-2"
                 onClick={() => setIsOpen(false)}
               >
-                Features
+                <IoMdStar size={20} />
+                <span>Features</span>
               </a>
               <a 
                 href="#community" 
-                className="font-poppins text-sm text-gray-600 hover:text-rose-500 transition-colors py-2"
+                className="flex items-center gap-2 font-poppins text-sm text-gray-600 hover:text-rose-500 transition-colors py-2"
                 onClick={() => setIsOpen(false)}
               >
-                Community
+                <IoMdPeople size={20} />
+                <span>Community</span>
               </a>
               
               {!user && (
@@ -156,9 +164,10 @@ const Navbar = ({ user }) => {
                     navigate('/login');
                     setIsOpen(false);
                   }}
-                  className="font-poppins text-sm bg-rose-500 text-white px-4 py-2 rounded-full hover:bg-rose-600 transition-colors w-full"
+                  className="flex items-center justify-center gap-2 font-poppins text-sm bg-rose-500 text-white px-4 py-2 rounded-full hover:bg-rose-600 transition-colors w-full"
                 >
-                  Login
+                  <IoMdLogIn size={20} />
+                  <span>Login</span>
                 </button>
               )}
             </div>
