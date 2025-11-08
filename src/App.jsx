@@ -11,6 +11,7 @@ import DualValue from './components/DualValue';
 import MapPage from './pages/MapPage';
 import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
+import EventsPage from './pages/EventsPage';
 
 function HomePage({ user }) {
   return (
@@ -95,6 +96,15 @@ function App() {
           element={
             <ProtectedRoute user={user}>
               <MapPage user={user} />
+            </ProtectedRoute>
+          } 
+        />
+        
+        <Route 
+          path="/events" 
+          element={
+            <ProtectedRoute user={user}>
+              <EventsPage />
             </ProtectedRoute>
           } 
         />
