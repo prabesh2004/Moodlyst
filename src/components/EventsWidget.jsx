@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { getMoodBasedEvents, getDemoEvents } from '../services/eventsService';
 
 const EventsWidget = ({ recentMood, userLocation }) => {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -92,11 +94,20 @@ const EventsWidget = ({ recentMood, userLocation }) => {
           </p>
         </div>
         
-        {!import.meta.env.VITE_TICKETMASTER_API_KEY && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
-            <p className="text-xs text-yellow-700 font-medium">Demo Mode</p>
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          {!import.meta.env.VITE_TICKETMASTER_API_KEY && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
+              <p className="text-xs text-yellow-700 font-medium">Demo Mode</p>
+            </div>
+          )}
+          
+          <button
+            onClick={() => navigate('/events')}
+            className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-lg transition-colors text-sm"
+          >
+            View All Events 🎉
+          </button>
+        </div>
       </div>
 
       {isLoading ? (
