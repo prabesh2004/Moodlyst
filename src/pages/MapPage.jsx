@@ -17,7 +17,8 @@ const MapPage = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [mapCenter, setMapCenter] = useState([39.8283, -98.5795]);
   const [mapZoom, setMapZoom] = useState(4);
-  const [locationStatus, setLocationStatus] = useState('checking');
+  const [locationStatus, setLocationStatus] = useState('requesting');
+  const [isMapReady, setIsMapReady] = useState(false);
 
   // Real city data with actual coordinates and mood scores
   const cities = [
@@ -33,19 +34,22 @@ const MapPage = () => {
     { name: 'Phoenix', mood: 7.6, lat: 33.4484, lng: -112.0740, color: '#fb923c' },
   ];
 
-  // Get user location on mount
+  // Request location IMMEDIATELY on mount (before map loads)
   useEffect(() => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setUserLocation({ lat: latitude, lng: longitude });
+          const newLocation = { lat: latitude, lng: longitude };
+          setUserLocation(newLocation);
           setMapCenter([latitude, longitude]);
           setMapZoom(11);
           setLocationStatus('allowed');
+          setIsMapReady(true); // Map can now load with correct center
         },
         (error) => {
           setLocationStatus('denied');
+          setIsMapReady(true); // Load map anyway with default center
           console.log('Location denied:', error.message);
         },
         {
@@ -55,24 +59,38 @@ const MapPage = () => {
         }
       );
     } else {
-      setLocationStatus('denied');
+      setLocationStatus('unsupported');
+      setIsMapReady(true);
     }
   }, []);
 
   return (
     <div className="relative w-full h-screen">
-      {/* Full Screen Map */}
-      <MapContainer
-        center={mapCenter}
-        zoom={mapZoom}
-        style={{ height: '100%', width: '100%' }}
-        scrollWheelZoom={true}
-        dragging={true}
-        touchZoom={true}
-        doubleClickZoom={true}
-        zoomControl={true}
-      >
-        <MapUpdater center={mapCenter} zoom={mapZoom} />
+      {/* Loading Screen - Show while requesting location */}
+      {!isMapReady && (
+        <div className="absolute inset-0 z-50 bg-white flex flex-col items-center justify-center">
+          <div className="text-6xl mb-4 animate-bounce">📍</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Requesting Location</h2>
+          <p className="text-gray-600">Please allow location access to see events near you</p>
+          <div className="mt-6">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500"></div>
+          </div>
+        </div>
+      )}
+
+      {/* Full Screen Map - Only render when ready */}
+      {isMapReady && (
+        <MapContainer
+          center={mapCenter}
+          zoom={mapZoom}
+          style={{ height: '100%', width: '100%' }}
+          scrollWheelZoom={true}
+          dragging={true}
+          touchZoom={true}
+          doubleClickZoom={true}
+          zoomControl={true}
+        >
+          <MapUpdater center={mapCenter} zoom={mapZoom} />
         
         {/* Map Tiles - Google Maps Style */}
         <TileLayer
@@ -126,9 +144,11 @@ const MapPage = () => {
             </Popup>
           </CircleMarker>
         ))}
-      </MapContainer>
+        </MapContainer>
+      )}
 
-      {/* Floating Header */}
+      {/* Floating Header - Show after map loads */}
+      {isMapReady && (
       <div className="absolute top-0 left-0 right-0 z-1000 p-4 md:p-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Back Button */}
@@ -163,9 +183,11 @@ const MapPage = () => {
           </div>
         </div>
       </div>
+      )}
 
-      {/* Floating Info Card */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-1000 max-w-md w-full mx-4">
+      {/* Floating Info Card - Show after map loads */}
+      {isMapReady && (
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-1000 max-w-md w-full mx-4">
         <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6">
           <h3 className="text-xl font-bold text-gray-900 mb-2">
             Explore Mood Trends 🗺️
@@ -195,6 +217,7 @@ const MapPage = () => {
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 };
