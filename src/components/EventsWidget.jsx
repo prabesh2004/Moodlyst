@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { getMoodBasedEvents, getDemoEvents } from '../services/eventsService';
+import { getEventMoods } from '../services/moodService';
 
 const EventsWidget = ({ recentMood, userLocation }) => {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ const EventsWidget = ({ recentMood, userLocation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [visibleCount, setVisibleCount] = useState(6);
+  const [eventMoods, setEventMoods] = useState({});
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -50,6 +52,11 @@ const EventsWidget = ({ recentMood, userLocation }) => {
           setEvents(getDemoEvents());
         } else {
           setEvents(eventsList);
+          
+          // Fetch event mood ratings
+          const eventIds = eventsList.map(e => e.id);
+          const moods = await getEventMoods(eventIds);
+          setEventMoods(moods);
         }
       } catch (err) {
         console.error('Error loading events:', err);
@@ -73,6 +80,14 @@ const EventsWidget = ({ recentMood, userLocation }) => {
   };
 
   // Get mood-based title
+  // Get mood rating color
+  const getMoodColor = (avgMood) => {
+    if (avgMood >= 8) return 'bg-green-500';
+    if (avgMood >= 6) return 'bg-yellow-500';
+    if (avgMood >= 5) return 'bg-orange-500';
+    return 'bg-red-500';
+  };
+
   const getMoodBasedTitle = () => {
     const score = recentMood?.moodScore || 7;
     if (score >= 8) return 'You\'re feeling great! Check out these events:';
@@ -156,6 +171,16 @@ const EventsWidget = ({ recentMood, userLocation }) => {
                       {event.category}
                     </span>
                   </div>
+                  
+                  {/* Mood Rating Badge */}
+                  {eventMoods[event.id] && (
+                    <div className="absolute top-3 right-3">
+                      <span className={`${getMoodColor(eventMoods[event.id].averageMood)} text-white text-xs px-3 py-1 rounded-full font-bold shadow-lg flex items-center gap-1`}>
+                        <span>😊</span>
+                        <span>{eventMoods[event.id].averageMood}/10</span>
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Event Details */}
@@ -185,6 +210,16 @@ const EventsWidget = ({ recentMood, userLocation }) => {
                       <span>💰</span>
                       <span className="font-semibold text-rose-600">{event.priceRange}</span>
                     </div>
+                    
+                    {/* Event Mood Info */}
+                    {eventMoods[event.id] && (
+                      <div className="flex items-center gap-2 pt-2 border-t border-gray-200 mt-2">
+                        <span>🎭</span>
+                        <span className="text-xs text-gray-500">
+                          Based on {eventMoods[event.id].totalLogs} {eventMoods[event.id].totalLogs === 1 ? 'attendee' : 'attendees'}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* View Details Button */}

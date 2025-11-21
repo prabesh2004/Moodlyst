@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { saveMoodLog } from '../services/moodService';
+import { getEventsNearby } from '../services/eventsService';
 
 const MoodLogModal = ({ isOpen, onClose, user, checkInType = 'anytime' }) => {
   const [moodScore, setMoodScore] = useState(5);
@@ -8,6 +9,10 @@ const MoodLogModal = ({ isOpen, onClose, user, checkInType = 'anytime' }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [location, setLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
+  const [nearbyEvents, setNearbyEvents] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isLoadingEvents, setIsLoadingEvents] = useState(false);
+  const [showEventSelector, setShowEventSelector] = useState(false);
 
   // Request location when modal opens
   useEffect(() => {
@@ -16,15 +21,22 @@ const MoodLogModal = ({ isOpen, onClose, user, checkInType = 'anytime' }) => {
       setNote('');
       setLocation(null);
       setLocationError(null);
+      setNearbyEvents([]);
+      setSelectedEvent(null);
+      setShowEventSelector(false);
 
       // Request user's location
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            setLocation({
+            const userLocation = {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude
-            });
+            };
+            setLocation(userLocation);
+            
+            // Fetch nearby events for tagging
+            fetchEventsForTagging(userLocation);
           },
           (error) => {
             console.error('Location error:', error);
@@ -36,6 +48,24 @@ const MoodLogModal = ({ isOpen, onClose, user, checkInType = 'anytime' }) => {
       }
     }
   }, [isOpen]);
+
+  // Fetch events near user's location
+  const fetchEventsForTagging = async (userLocation) => {
+    try {
+      setIsLoadingEvents(true);
+      const events = await getEventsNearby(
+        userLocation.latitude,
+        userLocation.longitude,
+        20  // radius in miles
+      );
+      setNearbyEvents(events.slice(0, 15)); // Limit to 15 events
+      console.log(`🎭 Loaded ${events.length} nearby events for tagging`);
+    } catch (error) {
+      console.error('Failed to load events:', error);
+    } finally {
+      setIsLoadingEvents(false);
+    }
+  };
 
   // Get emoji based on mood score
   const getMoodEmoji = (score) => {
@@ -93,6 +123,18 @@ const MoodLogModal = ({ isOpen, onClose, user, checkInType = 'anytime' }) => {
         moodData.location = location;
       }
 
+      // Add selected event if tagged
+      if (selectedEvent) {
+        moodData.eventId = selectedEvent.id;
+        moodData.event = {
+          id: selectedEvent.id,
+          name: selectedEvent.name,
+          venue: selectedEvent.venue,
+          date: selectedEvent.date
+        };
+        console.log(`🎭 Mood tagged with event: ${selectedEvent.name}`);
+      }
+
       await saveMoodLog(moodData);
 
       // Success feedback with emoji
@@ -103,7 +145,10 @@ const MoodLogModal = ({ isOpen, onClose, user, checkInType = 'anytime' }) => {
         ? `${emoji} Evening mood logged! Rest well tonight!`
         : `${emoji} Mood logged successfully!`;
       
-      alert(`✅ ${message}\n\nScore: ${moodScore}/10${location ? '\n📍 Location saved' : ''}`);
+      const locationTag = location ? '\n📍 Location saved' : '';
+      const eventTag = selectedEvent ? `\n🎭 Tagged: ${selectedEvent.name}` : '';
+      
+      alert(`✅ ${message}\n\nScore: ${moodScore}/10${locationTag}${eventTag}`);
       onClose();
     } catch (error) {
       console.error('Error saving mood:', error);
@@ -222,6 +267,79 @@ const MoodLogModal = ({ isOpen, onClose, user, checkInType = 'anytime' }) => {
                   {note.length}/200 characters
                 </div>
               </div>
+
+              {/* Event Tagging Section */}
+              {nearbyEvents.length > 0 && (
+                <div className="mb-6">
+                  <button
+                    type="button"
+                    onClick={() => setShowEventSelector(!showEventSelector)}
+                    className="flex items-center justify-between w-full p-4 bg-linear-to-r from-rose-50 to-pink-50 rounded-xl border border-rose-200 hover:border-rose-300 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">🎭</span>
+                      <div className="text-left">
+                        <div className="font-semibold text-gray-900">
+                          {selectedEvent ? selectedEvent.name : 'Tag an event'}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          {selectedEvent ? 'Event tagged' : `${nearbyEvents.length} events nearby`}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-gray-400">
+                      {showEventSelector ? '▲' : '▼'}
+                    </span>
+                  </button>
+
+                  {/* Event List */}
+                  {showEventSelector && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="mt-2 max-h-64 overflow-y-auto bg-white border border-gray-200 rounded-xl"
+                    >
+                      {nearbyEvents.map((event) => (
+                        <button
+                          key={event.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedEvent(event);
+                            setShowEventSelector(false);
+                          }}
+                          className={`w-full p-3 text-left border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors ${
+                            selectedEvent?.id === event.id ? 'bg-rose-50' : ''
+                          }`}
+                        >
+                          <div className="font-medium text-sm text-gray-900 truncate">
+                            {event.name}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {event.venue} • {event.date}
+                          </div>
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedEvent(null);
+                          setShowEventSelector(false);
+                        }}
+                        className="w-full p-3 text-center text-sm text-gray-500 hover:bg-gray-50"
+                      >
+                        Clear selection
+                      </button>
+                    </motion.div>
+                  )}
+                </div>
+              )}
+
+              {isLoadingEvents && (
+                <div className="mb-6 p-3 bg-gray-50 rounded-xl text-center text-sm text-gray-500">
+                  Loading nearby events...
+                </div>
+              )}
 
               {/* Check-in Type Badge */}
               <div className="mb-6">

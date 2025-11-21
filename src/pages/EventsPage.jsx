@@ -10,6 +10,7 @@ import {
   IoTicketOutline
 } from 'react-icons/io5';
 import { getEventsNearby, getMoodBasedEvents, getDemoEvents } from '../services/eventsService';
+import { getEventMoods } from '../services/moodService';
 import { auth } from '../firebase';
 import EventDetailModal from '../components/EventDetailModal';
 
@@ -29,10 +30,20 @@ const EventsPage = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+  const [eventMoods, setEventMoods] = useState({});
+  const [sortBy, setSortBy] = useState('date'); // 'date' or 'mood'
 
   const categories = ['All', 'Music', 'Sports', 'Arts & Theatre', 'Family', 'Film', 'Miscellaneous'];
   const dateRanges = ['All', 'Today', 'This Week', 'This Month', 'Next Month'];
   const distances = ['10', '25', '50', '100'];
+
+  // Get mood rating color
+  const getMoodColor = (avgMood) => {
+    if (avgMood >= 8) return 'bg-green-500';
+    if (avgMood >= 6) return 'bg-yellow-500';
+    if (avgMood >= 5) return 'bg-orange-500';
+    return 'bg-red-500';
+  };
 
   // Get user location
   useEffect(() => {
@@ -78,6 +89,11 @@ const EventsPage = () => {
 
         setEvents(eventsList);
         setFilteredEvents(eventsList);
+        
+        // Fetch event mood ratings
+        const eventIds = eventsList.map(e => e.id);
+        const moods = await getEventMoods(eventIds);
+        setEventMoods(moods);
         setIsLoading(false);
       } catch (error) {
         console.error('Error fetching events:', error);
@@ -133,9 +149,18 @@ const EventsPage = () => {
       });
     }
 
+    // Sort events
+    if (sortBy === 'mood') {
+      filtered.sort((a, b) => {
+        const moodA = eventMoods[a.id]?.averageMood || 0;
+        const moodB = eventMoods[b.id]?.averageMood || 0;
+        return moodB - moodA; // Highest mood first
+      });
+    }
+
     setFilteredEvents(filtered);
     setVisibleCount(12); // Reset visible count when filters change
-  }, [searchQuery, selectedDateRange, events]);
+  }, [searchQuery, selectedDateRange, events, sortBy, eventMoods]);
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
@@ -356,6 +381,35 @@ const EventsPage = () => {
                       ))}
                     </div>
                   </div>
+                  
+                  {/* Sort By Filter */}
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Sort By
+                    </label>
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={() => setSortBy('date')}
+                        className={`px-2.5 py-1 text-xs rounded-md font-medium transition-all ${
+                          sortBy === 'date'
+                            ? 'bg-green-500 text-white shadow-sm'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        Date
+                      </button>
+                      <button
+                        onClick={() => setSortBy('mood')}
+                        className={`px-2.5 py-1 text-xs rounded-md font-medium transition-all ${
+                          sortBy === 'mood'
+                            ? 'bg-green-500 text-white shadow-sm'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        😊 Best Vibes
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -442,6 +496,12 @@ const EventsPage = () => {
                       <span className="absolute top-3 left-3 px-3 py-1 bg-rose-500 text-white text-xs font-semibold rounded-full">
                         {event.category}
                       </span>
+                      {eventMoods[event.id] && (
+                        <span className={`absolute bottom-3 left-3 px-3 py-1.5 ${getMoodColor(eventMoods[event.id].averageMood)} text-white text-sm font-bold rounded-full shadow-lg flex items-center gap-1`}>
+                          <span>😊</span>
+                          <span>{eventMoods[event.id].averageMood}/10</span>
+                        </span>
+                      )}
                       {event.distance && (
                         <span className="absolute top-3 right-3 px-3 py-1 bg-white/90 text-gray-800 text-xs font-semibold rounded-full">
                           {event.distance.toFixed(1)} mi
@@ -478,6 +538,16 @@ const EventsPage = () => {
                         <p className="text-xs text-gray-500">
                           {event.city}, {event.state}
                         </p>
+                      )}
+                      
+                      {/* Event Mood Info */}
+                      {eventMoods[event.id] && (
+                        <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
+                          <span>🎭</span>
+                          <span className="text-xs text-gray-500">
+                            {eventMoods[event.id].totalLogs} {eventMoods[event.id].totalLogs === 1 ? 'attendee' : 'attendees'} rated this
+                          </span>
+                        </div>
                       )}
 
                       <div className="pt-2 flex items-center justify-between">

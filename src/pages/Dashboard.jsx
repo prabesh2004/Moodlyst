@@ -3,7 +3,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { motion } from 'framer-motion';
 import { useState, useEffect, useRef } from 'react';
-import { getTodayCheckIns, calculateStreak, getUserMoodLogs } from '../services/moodService';
+import { getTodayCheckIns, calculateStreak, getUserMoodLogs, deleteTodaysMoodLogs } from '../services/moodService';
 import MoodLogModal from '../components/MoodLogModal';
 import MoodTimeline from '../components/MoodTimeline';
 import EventsWidget from '../components/EventsWidget';
@@ -103,7 +103,7 @@ const Dashboard = ({ user }) => {
     if (todayCheckIns.evening) return false; // Already logged
     const now = new Date();
     const hour = now.getHours();
-    return hour >= 22 || hour < 2; // 10 PM to 2 AM (allows late night logging)
+    return hour >= 20; // 8 PM to 11:59 PM
   };
 
   const canLogAnytime = () => {
@@ -126,7 +126,7 @@ const Dashboard = ({ user }) => {
     if (todayCheckIns.evening) return 'Already logged today';
     const now = new Date();
     const hour = now.getHours();
-    if (hour < 22 && hour >= 2) return 'Available at 10:00 PM';
+    if (hour < 20) return 'Available at 8:00 PM';
     return 'Log now';
   };
 
@@ -248,6 +248,26 @@ const Dashboard = ({ user }) => {
       setAllMoodLogs(allMoods);
     } catch (error) {
       console.error('Error refreshing data:', error);
+    }
+  };
+
+  // Delete today's logs (for testing)
+  const handleDeleteTodayLogs = async () => {
+    const confirmed = window.confirm(
+      '🗑️ Delete all mood logs from today?\n\nThis is for testing purposes only and cannot be undone.'
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+      const count = await deleteTodaysMoodLogs(user.uid);
+      alert(`✅ Deleted ${count} mood log(s) from today`);
+      
+      // Refresh the page to update all data
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting logs:', error);
+      alert('❌ Error deleting logs. Check console for details.');
     }
   };
 
@@ -493,7 +513,7 @@ const Dashboard = ({ user }) => {
                   <span className="text-3xl">🌙</span>
                 </div>
                 <div>
-                  <h4 className="text-white font-bold text-lg">Evening (10 PM-2 AM)</h4>
+                  <h4 className="text-white font-bold text-lg">Evening (8 PM-11:59 PM)</h4>
                   <p className={`text-sm ${
                     canLogEvening() || todayCheckIns.evening ? 'text-white/80' : 'text-white/60'
                   }`}>
@@ -697,6 +717,22 @@ const Dashboard = ({ user }) => {
           className="mt-8"
         >
           <EventsWidget recentMood={recentMood} userLocation={userLocation} />
+        </motion.div>
+
+        {/* Delete Today's Logs Button (Testing Only) */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+          className="mt-8 flex justify-center"
+        >
+          <button
+            onClick={handleDeleteTodayLogs}
+            className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 flex items-center gap-2"
+          >
+            <span>🗑️</span>
+            <span>Delete Today's Logs (Testing)</span>
+          </button>
         </motion.div>
       </div>
 
