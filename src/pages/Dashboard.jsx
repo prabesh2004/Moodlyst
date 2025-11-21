@@ -103,7 +103,7 @@ const Dashboard = ({ user }) => {
     if (todayCheckIns.evening) return false; // Already logged
     const now = new Date();
     const hour = now.getHours();
-    return hour >= 22 || hour < 2; // 10 PM to 2 AM (allows late night logging)
+    return hour >= 20; // 8 PM to 11:59 PM
   };
 
   const canLogAnytime = () => {
@@ -126,7 +126,7 @@ const Dashboard = ({ user }) => {
     if (todayCheckIns.evening) return 'Already logged today';
     const now = new Date();
     const hour = now.getHours();
-    if (hour < 22 && hour >= 2) return 'Available at 10:00 PM';
+    if (hour < 20) return 'Available at 8:00 PM';
     return 'Log now';
   };
 
@@ -493,7 +493,7 @@ const Dashboard = ({ user }) => {
                   <span className="text-3xl">🌙</span>
                 </div>
                 <div>
-                  <h4 className="text-white font-bold text-lg">Evening (10 PM-2 AM)</h4>
+                  <h4 className="text-white font-bold text-lg">Evening (8 PM-11:59 PM)</h4>
                   <p className={`text-sm ${
                     canLogEvening() || todayCheckIns.evening ? 'text-white/80' : 'text-white/60'
                   }`}>
