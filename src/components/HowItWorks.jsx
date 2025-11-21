@@ -136,8 +136,8 @@ const HowItWorks = () => {
           transition={{ duration: 0.6, delay: 0.8 }}
         >
           <motion.button
-            className="font-poppins text-sm font-medium bg-gray-900 text-white px-8 py-3 rounded-lg 
-            hover:bg-gray-800 transition-all duration-300 shadow-md hover:shadow-lg"
+            className="font-poppins text-sm font-medium bg-rose-600 text-white px-8 py-3 rounded-lg 
+            hover:bg-rose-700 transition-all duration-300 shadow-md hover:shadow-lg"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >

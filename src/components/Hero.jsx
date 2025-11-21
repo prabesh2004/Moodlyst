@@ -75,8 +75,8 @@ const Hero = ({ user }) => {
               Check in twice daily, share what you're experiencing, and discover the best local events through authentic mood ratings. Get personal insights while exploring your community's emotional pulse.
             </motion.p>
             <motion.button 
-              className="font-poppins text-sm font-medium bg-gray-900 text-white px-6 py-2.5 rounded-lg 
-              hover:bg-gray-800 transition-all duration-300 shadow-sm hover:shadow-md"
+              className="font-poppins text-sm font-medium bg-rose-600 text-white px-5 py-2 rounded-lg 
+              hover:bg-rose-700 transition-all duration-300 shadow-sm hover:shadow-md"
               variants={textVariants}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -146,7 +146,7 @@ const Hero = ({ user }) => {
                 ].map((bar, index) => (
                   <motion.div
                     key={index}
-                    className={`flex-1 rounded-t origin-bottom ${index === 6 ? 'bg-rose-500' : 'bg-rose-400'}`}
+                    className={`flex-1 rounded-t origin-bottom ${index === 6 ? 'bg-rose-600' : 'bg-rose-500'}`}
                     custom={bar.delay}
                     initial="hidden"
                     animate="visible"

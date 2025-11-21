@@ -1,22 +1,41 @@
-# Project Context - Moodlyst# 🎭 MOODLYST - AI Context & Project Memory
+# 🎭 MOODLYST - AI Context & Project Memory
 
-
-
-> **IMPORTANT**: AI Assistant must read this file before performing any operations!> **Last Updated:** November 8, 2025  
-
+> **IMPORTANT**: AI Assistant must read this file before performing any operations!
+> **Last Updated:** November 21, 2025  
 > **Purpose:** This file helps AI assistants maintain context about the project's vision, architecture, and user preferences across conversations.
 
 ## 📋 Project Overview
 
-**Name**: Moodlyst  ---
+**Name**: Moodlyst  
+**Type**: Mood tracking app with event discovery and real-time mood mapping  
+**Tech Stack**: React + Vite, Firebase (Firestore), Tailwind CSS, Framer Motion, Leaflet Maps  
+**Current Branch**: `redesign/hero-section`  
+**Last Major Feature**: Real-time mood map with location-based aggregation (Nov 21, 2025)
 
-**Type**: Mood tracking app with event discovery  
+## 🎯 CURRENT STATUS (Nov 21, 2025)
 
-**Tech Stack**: React + Vite, Firebase, Tailwind CSS, Framer Motion  ## 🎯 PROJECT VISION & CORE CONCEPT
+**COMPLETED:** Real-Time Mood Map Implementation ✅  
+**Goal:** Display authentic mood data from real users on an interactive map  
+**Status:** Fully functional - all 4 steps complete  
 
-**Current Branch**: `working-with-events`  
+**What's New:**
+- Mood logs now save with location data (city, region, coordinates)
+- City mood aggregates auto-calculate (average mood per city)
+- Map displays real user data with color-coded markers (green=happy, yellow=good, orange=neutral, red=sad)
+- Real-time updates via Firestore listeners (no refresh needed)
+- Reverse geocoding using BigDataCloud API (free, no API key)
+- Location permission UI in Dashboard navbar
 
-**Last Known Good Commit**: `a01e27b` (has EventsWidget, MoodTimeline, all features)### What is Moodlyst?
+**Design Updates:**
+- Complete color unification: Rose-600/Pink-600 palette throughout site
+- All buttons solid rose (no gradients)
+- Dashboard fully redesigned with rose/pink only
+- Fixed emoji bug in MoodTimeline (� → 📈)
+- Removed redundant "Load More" button from EventsWidget
+
+---
+
+## 🎯 PROJECT VISION & CORE CONCEPT### What is Moodlyst?
 
 Moodlyst is a **dual-purpose platform** that combines:
 
@@ -1306,3 +1325,183 @@ To enable easy rollback of design changes that don't work out, we now use **desi
 **Session End: November 8, 2025, 1:10 AM**
 Excellent progress! Events page complete, navbar redesigned with icons, and design checkpoint system established. Ready for next phase! 🚀
 
+---
+
+## 🚀 MAJOR UPDATE: Real-Time Mood Map (November 21, 2025)
+
+### ✅ Feature Complete: Location-Based Mood Aggregation
+
+**What Was Built:**
+Implemented the core differentiator of Moodlyst - a real-time map showing authentic mood data aggregated by location.
+
+#### Step 1: Location Capture ✅
+- **moodService.js:** Added `reverseGeocode()` function using BigDataCloud API
+- **Location Data Saved:** latitude, longitude, city, region, country, countryCode
+- **MoodLogModal:** Already had location permission logic, now passes to backend
+- **API Choice:** BigDataCloud (free, no key, CORS-friendly) vs OpenStreetMap (blocked by CORS)
+
+#### Step 2: City Mood Aggregation ✅
+- **New Firestore Collection:** `cityMoods`
+- **Function:** `updateCityMoodAggregate()` - Creates/updates city averages
+- **Calculation:** `averageMood = moodSum / totalLogs`
+- **Auto-triggered:** Every time a mood is logged with location
+- **Data Stored:** city, region, country, coordinates, totalLogs, moodSum, averageMood, lastUpdated
+
+#### Step 3: Map Integration ✅
+- **MapPage.jsx:** Replaced dummy data with Firestore query
+- **Function:** `getCityMoods(minLogs)` - Fetches cities with min threshold
+- **Dynamic Markers:** Size scales with totalLogs, color reflects averageMood
+- **Color Coding:**
+  - 🟢 Bright Green (#10b981): Very happy (8-10)
+  - 🟢 Light Green (#84cc16): Happy (7-8)
+  - 🟡 Yellow (#fbbf24): Good (6-7)
+  - 🟠 Orange (#fb923c): Neutral (5-6)
+  - 🔴 Light Red (#f87171): Low (4-5)
+  - 🔴 Red (#ef4444): Very low (<4)
+
+#### Step 4: Real-Time Updates ✅
+- **Function:** `subscribeToCityMoods()` - Firestore onSnapshot listener
+- **Live Updates:** Map refreshes when anyone logs a mood (no page reload)
+- **Cleanup:** Unsubscribes on component unmount (prevents memory leaks)
+- **Console Logging:** Shows update notifications in real-time
+
+### 🎨 Design Updates (Nov 19-21, 2025)
+
+**Color Unification:**
+- Changed site-wide to **rose-600/pink-600** palette (darker than original rose-500)
+- Removed ALL button gradients → solid rose-600 with rose-700 hover
+- Dashboard complete overhaul: eliminated orange, blue, teal, slate
+- Updated components: Hero, FeaturesSection, HowItWorks, Dashboard
+
+**UI Improvements:**
+- Fixed corrupted emoji in MoodTimeline (� → 📈)
+- Removed redundant "Load More" button from EventsWidget
+- Added location permission UI in Dashboard navbar
+- Shows "Enable Location" button when denied, disappears when granted
+
+### 🔧 Technical Implementation Details
+
+**New Firestore Collections:**
+```javascript
+// cityMoods/{cityKey}
+{
+  city: "Monroe",
+  region: "Louisiana",
+  country: "United States",
+  countryCode: "US",
+  latitude: 32.523507,
+  longitude: -92.079059,
+  totalLogs: 3,
+  moodSum: 25.5,
+  averageMood: 8.5,
+  lastUpdated: Timestamp,
+  createdAt: Timestamp
+}
+```
+
+**Updated moodLogs Schema:**
+```javascript
+// moodLogs/{logId}
+{
+  userId: "...",
+  moodScore: 8.5,
+  note: "...",
+  checkInType: "evening",
+  eventId: null,
+  timestamp: Timestamp,
+  createdAt: "2025-11-21T...",
+  location: {  // NEW
+    latitude: 32.523507,
+    longitude: -92.079059,
+    city: "Monroe",
+    region: "Louisiana",
+    country: "United States",
+    countryCode: "US"
+  }
+}
+```
+
+**Key Functions Added:**
+- `reverseGeocode(lat, lng)` - BigDataCloud API reverse geocoding
+- `updateCityMoodAggregate(data)` - Creates/updates city aggregates
+- `getCityMoods(minLogs)` - Fetch cities for map display
+- `subscribeToCityMoods(callback, minLogs)` - Real-time listener
+
+### 📊 Privacy & Data Considerations
+
+**Individual Privacy:**
+- User mood logs are PRIVATE (only user sees their own logs)
+- Location data stored but not publicly exposed
+- Only aggregated city data is public
+
+**City Aggregates:**
+- Minimum threshold: Currently 1 log (can increase to 5+ in production)
+- Anonymous by design - no individual identification possible
+- Averages update automatically with each new log
+
+### 🎯 Future Enhancements
+
+**Event Mood Aggregation (Next Priority):**
+- Tag events when logging moods (via eventId)
+- Create `eventMoods` collection
+- Show event ratings based on attendee actual moods
+- Sort EventsPage by mood score
+
+**Analytics & Insights:**
+- City mood trends over time
+- Mood heatmap by time of day
+- Comparative analytics (e.g., "Seattle 15% happier than NYC")
+- Personal mood patterns vs city averages
+
+**Social Features:**
+- See friends' mood trends (with permission)
+- Group mood comparisons
+- Mood-based event recommendations
+
+**Privacy Controls:**
+- User setting: Share publicly vs aggregate-only
+- Anonymous mode toggle
+- Data retention policies (auto-delete after X days)
+
+### 📁 Files Modified in This Session
+
+**Major Changes:**
+- `src/services/moodService.js` - Added 4 new functions (150+ lines)
+- `src/pages/MapPage.jsx` - Real-time listener, color logic, removed dummy data
+- `src/pages/Dashboard.jsx` - Location permission UI, color updates
+- `src/components/MoodLogModal.jsx` - Already had location logic (no changes needed)
+
+**Minor Changes:**
+- `src/components/Hero.jsx` - Button colors (rose-600)
+- `src/components/FeaturesSection.jsx` - Button colors
+- `src/components/HowItWorks.jsx` - Button colors
+- `src/components/MoodTimeline.jsx` - Fixed emoji
+- `src/components/EventsWidget.jsx` - Removed Load More button
+
+**New Files:**
+- `.azure/mood-map-progress.md` - Implementation progress tracker
+
+### ✅ Testing Completed
+
+**Verified Working:**
+- Mood logs save with location data (city/region/coordinates)
+- City aggregates update automatically in Firestore
+- Map displays real cities with correct colors
+- Real-time updates work (test: log mood in one tab, see map update in another)
+- Location permission UI functional
+- Console logging shows all steps working
+
+**Console Output:**
+```
+📍 Reverse geocode response: {...}
+📍 Parsed location: {city: "Monroe", region: "Louisiana", ...}
+📍 Location added: Monroe, Louisiana
+📊 Updated Monroe aggregate: 8.5/10 (3 logs)
+✅ Mood log saved with ID: ...
+🔄 Real-time update: 1 cities
+```
+
+---
+
+**Session End: November 21, 2025, 1:20 AM**
+MAJOR MILESTONE! Real-time mood map fully functional. Core feature of Moodlyst now live! 🗺️✨
