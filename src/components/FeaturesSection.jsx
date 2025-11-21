@@ -149,7 +149,7 @@ const FeaturesSection = () => {
             <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
               Join thousands of users who are already mapping their emotions and connecting with their communities.
             </p>
-            <button className="bg-linear-to-r from-rose-500 to-pink-500 text-white px-8 py-4 rounded-full font-semibold hover:from-rose-600 hover:to-pink-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105">
+            <button className="bg-rose-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-rose-700 transition-all shadow-sm hover:shadow-md">
               Get Started Free →
             </button>
           </div>

@@ -198,26 +198,6 @@ const EventsWidget = ({ recentMood, userLocation }) => {
             </motion.div>
           ))}
           </div>
-
-          {/* Load More Button */}
-          {visibleCount < events.length && (
-            <div className="mt-8 text-center">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  console.log(`📊 Loading more: current ${visibleCount}, total ${events.length}`);
-                  setVisibleCount(prev => prev + 6);
-                }}
-                className="bg-linear-to-r from-rose-500 to-orange-500 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                Load More Events 🎉
-              </motion.button>
-              <p className="text-gray-500 text-sm mt-3">
-                Showing {visibleCount} of {events.length} events
-              </p>
-            </div>
-          )}
         </>
       )}
 

@@ -136,7 +136,7 @@ const MoodTimeline = ({ moodLogs }) => {
           >
             <div className="flex items-center gap-3">
               <span className="text-3xl">
-                {trend === 'improving' ? '�' : trend === 'declining' ? '🌱' : '🌊'}
+                {trend === 'improving' ? '📈' : trend === 'declining' ? '🌱' : '🌊'}
               </span>
               <div>
                 <p className={`text-sm font-bold ${
