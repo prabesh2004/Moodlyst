@@ -10,7 +10,8 @@ import {
   getDoc,
   setDoc,
   updateDoc,
-  onSnapshot 
+  onSnapshot,
+  deleteDoc 
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -18,6 +19,7 @@ import { db } from '../firebase';
 const MOOD_LOGS_COLLECTION = 'moodLogs';
 const USERS_COLLECTION = 'users';
 const CITY_MOODS_COLLECTION = 'cityMoods';
+const EVENT_MOODS_COLLECTION = 'eventMoods';
 
 /**
  * Reverse geocode coordinates to get city/region info using BigDataCloud API
@@ -124,6 +126,64 @@ const updateCityMoodAggregate = async (data) => {
 };
 
 /**
+ * Update event mood aggregate when a mood is tagged with an event
+ * @param {Object} data - Event and mood data
+ * @param {number} data.moodScore - Mood score (0-10)
+ * @param {Object} data.event - Event details from Ticketmaster
+ */
+const updateEventMoodAggregate = async (data) => {
+  try {
+    const { moodScore, event } = data;
+    
+    // Skip if no event data
+    if (!event || !event.id) {
+      console.log('⚠️ Skipping event aggregate - no event data');
+      return;
+    }
+    
+    const eventRef = doc(db, EVENT_MOODS_COLLECTION, event.id);
+    
+    // Get existing event document
+    const eventDoc = await getDoc(eventRef);
+    
+    if (eventDoc.exists()) {
+      // Update existing aggregate
+      const current = eventDoc.data();
+      const newTotalLogs = current.totalLogs + 1;
+      const newMoodSum = current.moodSum + moodScore;
+      const newAverageMood = newMoodSum / newTotalLogs;
+      
+      await updateDoc(eventRef, {
+        totalLogs: newTotalLogs,
+        moodSum: newMoodSum,
+        averageMood: parseFloat(newAverageMood.toFixed(2)),
+        lastUpdated: Timestamp.now()
+      });
+      
+      console.log(`🎭 Updated "${event.name}" mood: ${newAverageMood.toFixed(1)}/10 (${newTotalLogs} logs)`);
+    } else {
+      // Create new event aggregate
+      await setDoc(eventRef, {
+        eventId: event.id,
+        eventName: event.name,
+        venue: event.venue || 'Unknown Venue',
+        date: event.date || null,
+        totalLogs: 1,
+        moodSum: moodScore,
+        averageMood: parseFloat(moodScore.toFixed(2)),
+        lastUpdated: Timestamp.now(),
+        createdAt: Timestamp.now()
+      });
+      
+      console.log(`🆕 Created "${event.name}" mood aggregate: ${moodScore}/10 (1 log)`);
+    }
+  } catch (error) {
+    console.error('❌ Error updating event mood aggregate:', error);
+    // Don't throw - we don't want to block mood logging if aggregation fails
+  }
+};
+
+/**
  * Save a mood log to Firestore
  * @param {Object} moodData - The mood data to save
  * @param {string} moodData.userId - User ID from Firebase Auth
@@ -168,6 +228,14 @@ export const saveMoodLog = async (moodData) => {
       await updateCityMoodAggregate({
         moodScore: moodData.moodScore,
         location: logData.location
+      });
+    }
+
+    // Update event mood aggregate if event is tagged
+    if (moodData.event) {
+      await updateEventMoodAggregate({
+        moodScore: moodData.moodScore,
+        event: moodData.event
       });
     }
 
@@ -380,3 +448,71 @@ export const subscribeToCityMoods = (callback, minLogs = 1) => {
   
   return unsubscribe;
 };
+
+// Delete today's mood logs (for testing purposes)
+export const deleteTodaysMoodLogs = async (userId) => {
+  try {
+    // Get all user's mood logs (without timestamp filter to avoid needing composite index)
+    const q = query(
+      collection(db, MOOD_LOGS_COLLECTION),
+      where('userId', '==', userId)
+    );
+    
+    const snapshot = await getDocs(q);
+    
+    // Filter for today's logs client-side
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const todayDocs = snapshot.docs.filter(doc => {
+      const logDate = doc.data().timestamp.toDate();
+      return logDate >= startOfDay;
+    });
+    
+    // Delete all matching documents
+    const deletePromises = todayDocs.map(doc => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
+    
+    const count = todayDocs.length;
+    console.log(`🗑️ Deleted ${count} mood log(s) from today`);
+    
+    return count;
+  } catch (error) {
+    console.error('❌ Error deleting mood logs:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get event mood ratings for multiple events
+ * @param {Array<string>} eventIds - Array of event IDs to fetch ratings for
+ * @returns {Promise<Object>} - Map of eventId to mood data
+ */
+export const getEventMoods = async (eventIds) => {
+  try {
+    if (!eventIds || eventIds.length === 0) {
+      return {};
+    }
+
+    const eventMoodsMap = {};
+    
+    // Fetch each event's mood data
+    const promises = eventIds.map(async (eventId) => {
+      const eventRef = doc(db, EVENT_MOODS_COLLECTION, eventId);
+      const eventDoc = await getDoc(eventRef);
+      
+      if (eventDoc.exists()) {
+        eventMoodsMap[eventId] = eventDoc.data();
+      }
+    });
+    
+    await Promise.all(promises);
+    
+    console.log(`🎭 Fetched mood ratings for ${Object.keys(eventMoodsMap).length}/${eventIds.length} events`);
+    return eventMoodsMap;
+  } catch (error) {
+    console.error('❌ Error fetching event moods:', error);
+    return {};
+  }
+};
+
