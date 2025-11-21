@@ -23,24 +23,73 @@ const Dashboard = ({ user }) => {
   const [todayMoodCount, setTodayMoodCount] = useState(0);
   const [allMoodLogs, setAllMoodLogs] = useState([]);
   const [userLocation, setUserLocation] = useState(null);
+  const [locationStatus, setLocationStatus] = useState('idle');
+  const [locationName, setLocationName] = useState('');
 
-  // Request location permission on component mount
-  useEffect(() => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log('✅ Location permission granted');
-          setUserLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          });
-        },
-        (error) => {
-          console.log('⚠️ Location permission denied:', error.message);
-        }
-      );
+  const fetchLocationName = async (latitude, longitude) => {
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`);
+      if (!response.ok) throw new Error('Reverse geocoding failed');
+
+      const data = await response.json();
+      const address = data.address || {};
+      const city = address.city || address.town || address.village || address.suburb;
+      const state = address.state;
+      const country = address.country_code ? address.country_code.toUpperCase() : address.country;
+
+      const formatted = [city, state].filter(Boolean).join(', ') || data.display_name?.split(',').slice(0, 2).join(', ');
+      setLocationName(formatted ? `${formatted}${country ? ` · ${country}` : ''}` : 'Location detected');
+    } catch (error) {
+      console.error('Reverse geocode error:', error);
+      setLocationName('Location detected');
     }
+  };
+
+  const requestLocationAccess = () => {
+    if (!('geolocation' in navigator)) {
+      setLocationStatus('unavailable');
+      return;
+    }
+
+    setLocationStatus('requesting');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        console.log('✅ Location permission granted');
+        setUserLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude
+        });
+        setLocationStatus('granted');
+        fetchLocationName(position.coords.latitude, position.coords.longitude);
+      },
+      (error) => {
+        console.log('⚠️ Location permission denied:', error.message);
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationStatus('denied');
+        } else {
+          setLocationStatus('error');
+        }
+      }
+    );
+  };
+
+  useEffect(() => {
+    requestLocationAccess();
   }, []);
+
+  const getLocationLabel = () => {
+    if (locationName) return locationName;
+    if (!userLocation) return 'Location enabled';
+    const { latitude, longitude } = userLocation;
+    return `${latitude.toFixed(2)}°, ${longitude.toFixed(2)}°`;
+  };
+
+  const handleEnableLocationClick = () => {
+    requestLocationAccess();
+    if (locationStatus === 'denied') {
+      alert('Location access is blocked. Please enable location for Moodlyst in your browser settings (Site Settings → Location) and try again.');
+    }
+  };
 
   // Time validation functions
   const canLogMorning = () => {
@@ -217,7 +266,7 @@ const Dashboard = ({ user }) => {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-rose-50 to-orange-50">
+    <div className="min-h-screen bg-linear-to-br from-rose-50 to-pink-50">
       {/* Header/Navbar */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
@@ -235,6 +284,22 @@ const Dashboard = ({ user }) => {
             >
               Explore Map
             </button>
+
+            <div className="hidden sm:flex items-center">
+              {locationStatus === 'requesting' ? (
+                <span className="text-xs text-gray-500 px-3 py-1 rounded-full border border-gray-200">
+                  Locating...
+                </span>
+              ) : locationStatus !== 'granted' && (
+                <button
+                  onClick={handleEnableLocationClick}
+                  className="text-xs text-rose-600 border border-rose-200 px-3 py-1 rounded-full hover:bg-rose-50 transition flex items-center gap-1"
+                >
+                  <span>📍</span>
+                  Enable Location
+                </button>
+              )}
+            </div>
           </div>
           
           {/* Profile Dropdown */}
@@ -289,6 +354,18 @@ const Dashboard = ({ user }) => {
                 >
                   🗺️ Explore Map
                 </button>
+
+                {locationStatus !== 'granted' && locationStatus !== 'requesting' && (
+                  <button
+                    onClick={() => {
+                      handleEnableLocationClick();
+                      setShowDropdown(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition-colors"
+                  >
+                    📍 Enable Location
+                  </button>
+                )}
                 
                 <button
                   onClick={handleLogout}
@@ -330,14 +407,14 @@ const Dashboard = ({ user }) => {
               <h3 className="text-2xl font-bold text-gray-900 mb-2">Today's Check-Ins</h3>
               <p className="text-gray-600 text-sm">Log your mood twice daily to track your journey</p>
             </div>
-            <div className="bg-orange-50 border border-orange-200 rounded-2xl px-4 py-2">
+            <div className="bg-rose-50 border border-rose-200 rounded-2xl px-4 py-2">
               <div className="flex items-center gap-2">
                 <span className="text-2xl">🔥</span>
                 <div>
-                  <p className="text-orange-600 font-bold text-lg">
+                  <p className="text-rose-600 font-bold text-lg">
                     {isLoading ? '...' : `${streak} Day${streak !== 1 ? 's' : ''}`}
                   </p>
-                  <p className="text-orange-500 text-xs">Current Streak</p>
+                  <p className="text-rose-500 text-xs">Current Streak</p>
                 </div>
               </div>
             </div>
@@ -347,7 +424,7 @@ const Dashboard = ({ user }) => {
             {/* Morning Check-in - Bright/Warm */}
             <div className={`rounded-2xl p-6 border shadow-lg transition-all ${
               canLogMorning() || todayCheckIns.morning
-                ? 'bg-linear-to-br from-amber-400 to-orange-500 border-orange-300'
+                ? 'bg-linear-to-br from-rose-500 to-pink-600 border-pink-400'
                 : 'bg-gray-300 border-gray-400 opacity-70'
             }`}>
               <div className="flex items-center gap-3 mb-4">
@@ -374,7 +451,7 @@ const Dashboard = ({ user }) => {
                         {todayCheckIns.morning.moodScore}/10
                       </span>
                     </div>
-                    <span className="bg-white text-orange-600 text-xs px-3 py-1 rounded-full font-semibold">
+                    <span className="bg-white text-rose-600 text-xs px-3 py-1 rounded-full font-semibold">
                       ✓ Logged
                     </span>
                   </>
@@ -383,7 +460,7 @@ const Dashboard = ({ user }) => {
                     <span className="text-white/80 text-sm">Available now</span>
                     <button 
                       onClick={() => openMoodModal('morning')}
-                      className="bg-white text-orange-600 px-4 py-2 rounded-full font-semibold hover:bg-orange-50 transition-all text-sm"
+                      className="bg-white text-rose-600 px-4 py-2 rounded-full font-semibold hover:bg-rose-50 transition-all text-sm"
                     >
                       Log Now
                     </button>
@@ -406,7 +483,7 @@ const Dashboard = ({ user }) => {
             {/* Evening Check-in - Dark/Cool */}
             <div className={`rounded-2xl p-6 border shadow-lg transition-all ${
               canLogEvening() || todayCheckIns.evening
-                ? 'bg-linear-to-br from-slate-700 to-slate-900 border-slate-600'
+                ? 'bg-linear-to-br from-pink-600 to-rose-700 border-rose-500'
                 : 'bg-gray-400 border-gray-500 opacity-70'
             }`}>
               <div className="flex items-center gap-3 mb-4">
@@ -433,7 +510,7 @@ const Dashboard = ({ user }) => {
                         {todayCheckIns.evening.moodScore}/10
                       </span>
                     </div>
-                    <span className="bg-white text-slate-600 text-xs px-3 py-1 rounded-full font-semibold">
+                    <span className="bg-white text-pink-600 text-xs px-3 py-1 rounded-full font-semibold">
                       ✓ Logged
                     </span>
                   </>
@@ -442,7 +519,7 @@ const Dashboard = ({ user }) => {
                     <span className="text-white/70 text-sm">Available now</span>
                     <button 
                       onClick={() => openMoodModal('evening')}
-                      className="bg-white text-slate-800 px-4 py-2 rounded-full font-semibold hover:bg-gray-100 transition-all text-sm"
+                      className="bg-white text-rose-800 px-4 py-2 rounded-full font-semibold hover:bg-rose-50 transition-all text-sm"
                     >
                       Log Now
                     </button>
@@ -463,12 +540,12 @@ const Dashboard = ({ user }) => {
             </div>
           </div>
 
-          <div className="bg-linear-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-4">
+          <div className="bg-linear-to-r from-rose-50 to-pink-50 border border-rose-200 rounded-xl p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <span className="text-2xl">💡</span>
                 <div>
-                  <p className="text-blue-800 text-sm font-semibold">
+                  <p className="text-rose-800 text-sm font-semibold">
                     {todayCheckIns.morning && todayCheckIns.evening 
                       ? "Amazing! You've completed both check-ins today! 🎉"
                       : todayCheckIns.morning && !todayCheckIns.evening
@@ -478,7 +555,7 @@ const Dashboard = ({ user }) => {
                       : "Start your day right! Log your morning mood between 6 AM - 12 PM"
                     }
                   </p>
-                  <p className="text-blue-600 text-xs mt-1">
+                  <p className="text-rose-600 text-xs mt-1">
                     {todayMoodCount}/5 moods logged today • Keep your {streak}-day streak alive!
                   </p>
                 </div>
@@ -536,7 +613,7 @@ const Dashboard = ({ user }) => {
           transition={{ delay: 0.5 }}
           className={`rounded-3xl shadow-2xl p-12 text-center text-white transition-all ${
             canLogAnytime() && todayMoodCount < 5
-              ? 'bg-linear-to-r from-teal-600 to-cyan-600'
+              ? 'bg-linear-to-r from-rose-600 to-pink-600'
               : 'bg-gray-400'
           }`}
         >

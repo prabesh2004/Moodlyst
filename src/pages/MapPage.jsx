@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { subscribeToCityMoods } from '../services/moodService';
 
 // Component to update map center dynamically
 const MapUpdater = ({ center, zoom }) => {
@@ -19,20 +20,46 @@ const MapPage = () => {
   const [mapZoom, setMapZoom] = useState(4);
   const [locationStatus, setLocationStatus] = useState('requesting');
   const [isMapReady, setIsMapReady] = useState(false);
+  const [cities, setCities] = useState([]);
+  const [isLoadingCities, setIsLoadingCities] = useState(true);
 
-  // Real city data with actual coordinates and mood scores
-  const cities = [
-    { name: 'New York', mood: 8.2, lat: 40.7128, lng: -74.0060, color: '#fb7185' },
-    { name: 'Los Angeles', mood: 7.8, lat: 34.0522, lng: -118.2437, color: '#fb923c' },
-    { name: 'Chicago', mood: 6.5, lat: 41.8781, lng: -87.6298, color: '#fbbf24' },
-    { name: 'Houston', mood: 8.5, lat: 29.7604, lng: -95.3698, color: '#f43f5e' },
-    { name: 'Miami', mood: 9.1, lat: 25.7617, lng: -80.1918, color: '#ec4899' },
-    { name: 'Seattle', mood: 7.2, lat: 47.6062, lng: -122.3321, color: '#fbbf24' },
-    { name: 'Denver', mood: 8.7, lat: 39.7392, lng: -104.9903, color: '#fb7185' },
-    { name: 'Boston', mood: 7.9, lat: 42.3601, lng: -71.0589, color: '#fb923c' },
-    { name: 'San Francisco', mood: 8.1, lat: 37.7749, lng: -122.4194, color: '#fb7185' },
-    { name: 'Phoenix', mood: 7.6, lat: 33.4484, lng: -112.0740, color: '#fb923c' },
-  ];
+  // Get mood color based on score (using rose/pink palette)
+  const getMoodColor = (averageMood) => {
+    if (averageMood >= 8) return '#10b981'; // Bright green (very happy)
+    if (averageMood >= 7) return '#84cc16'; // Light green (happy)
+    if (averageMood >= 6) return '#fbbf24'; // Yellow (good)
+    if (averageMood >= 5) return '#fb923c'; // Orange (neutral)
+    if (averageMood >= 4) return '#f87171'; // Light red (low)
+    return '#ef4444'; // Red (very low)
+  };
+
+  // Get mood label based on score
+  const getMoodLabel = (averageMood) => {
+    if (averageMood >= 8.5) return 'Very Happy';
+    if (averageMood >= 7.5) return 'Happy';
+    if (averageMood >= 6.5) return 'Good';
+    if (averageMood >= 5.5) return 'Neutral';
+    if (averageMood >= 4) return 'Low';
+    return 'Very Low';
+  };
+
+  // Fetch city moods from Firestore with real-time updates
+  useEffect(() => {
+    console.log('🔄 Setting up real-time city mood listener...');
+    
+    // Subscribe to real-time updates
+    const unsubscribe = subscribeToCityMoods((cityData) => {
+      setCities(cityData);
+      setIsLoadingCities(false);
+      console.log('🗺️ Real-time city moods updated:', cityData.length, 'cities');
+    }, 1); // Min 1 log (increase to 5 for privacy in production)
+    
+    // Cleanup subscription on unmount
+    return () => {
+      console.log('🔌 Unsubscribing from city mood updates');
+      unsubscribe();
+    };
+  }, []);
 
   // Request location IMMEDIATELY on mount (before map loads)
   useEffect(() => {
@@ -123,22 +150,25 @@ const MapPage = () => {
         {/* City Markers */}
         {cities.map((city) => (
           <CircleMarker
-            key={city.name}
-            center={[city.lat, city.lng]}
-            radius={15}
-            fillColor={city.color}
-            fillOpacity={0.8}
+            key={city.id}
+            center={[city.latitude, city.longitude]}
+            radius={Math.min(10 + city.totalLogs * 2, 25)} // Size based on number of logs
+            fillColor={getMoodColor(city.averageMood)}
+            fillOpacity={0.7}
             color="white"
-            weight={3}
+            weight={2}
           >
             <Popup>
               <div className="text-center p-2">
-                <div className="font-bold text-lg">{city.name}</div>
-                <div className="text-sm text-gray-600">
-                  Mood Score: <span className="font-semibold text-rose-500">{city.mood}/10</span>
+                <div className="font-bold text-lg">{city.city}</div>
+                <div className="text-xs text-gray-500">{city.region}, {city.countryCode}</div>
+                <div className="text-sm text-gray-600 mt-2">
+                  Average Mood: <span className="font-semibold" style={{ color: getMoodColor(city.averageMood) }}>
+                    {city.averageMood}/10
+                  </span>
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
-                  😊 {city.mood >= 8.5 ? 'Very Happy' : city.mood >= 7.5 ? 'Happy' : city.mood >= 7.0 ? 'Good' : 'Neutral'}
+                  {getMoodLabel(city.averageMood)} • {city.totalLogs} {city.totalLogs === 1 ? 'log' : 'logs'}
                 </div>
               </div>
             </Popup>

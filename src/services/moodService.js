@@ -5,13 +5,123 @@ import {
   query, 
   where, 
   orderBy,
-  Timestamp 
+  Timestamp,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  onSnapshot 
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
 // Collection names
 const MOOD_LOGS_COLLECTION = 'moodLogs';
 const USERS_COLLECTION = 'users';
+const CITY_MOODS_COLLECTION = 'cityMoods';
+
+/**
+ * Reverse geocode coordinates to get city/region info using BigDataCloud API
+ * Free API with no key required and CORS support
+ */
+const reverseGeocode = async (latitude, longitude) => {
+  try {
+    const response = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('📍 Reverse geocode response:', data);
+    
+    // BigDataCloud provides: city, locality, principalSubdivision, countryName, countryCode
+    const city = data.city || data.locality || data.localityInfo?.administrative?.[3]?.name || 'Unknown';
+    const region = data.principalSubdivision || data.principalSubdivisionCode || 'Unknown';
+    const country = data.countryName || 'Unknown';
+    const countryCode = data.countryCode || 'XX';
+    
+    const result = {
+      city: city.trim(),
+      region: region.trim(),
+      country: country.trim(),
+      countryCode: countryCode.toUpperCase()
+    };
+    
+    console.log('📍 Parsed location:', result);
+    return result;
+    
+  } catch (error) {
+    console.error('❌ Reverse geocode error:', error);
+    return {
+      city: 'Unknown',
+      region: 'Unknown',
+      country: 'Unknown',
+      countryCode: 'XX'
+    };
+  }
+};
+
+/**
+ * Update city mood aggregate when a new mood is logged
+ * @param {Object} data - Mood data with score and location
+ */
+const updateCityMoodAggregate = async (data) => {
+  try {
+    const { moodScore, location } = data;
+    
+    // Skip if location is unknown
+    if (!location || location.city === 'Unknown') {
+      console.log('⚠️ Skipping city aggregate - location unknown');
+      return;
+    }
+    
+    // Create unique city key: "CityName_Region_CountryCode"
+    const cityKey = `${location.city}_${location.region}_${location.countryCode}`.replace(/\s+/g, '_');
+    const cityRef = doc(db, CITY_MOODS_COLLECTION, cityKey);
+    
+    // Get existing city document
+    const cityDoc = await getDoc(cityRef);
+    
+    if (cityDoc.exists()) {
+      // Update existing aggregate
+      const current = cityDoc.data();
+      const newTotalLogs = current.totalLogs + 1;
+      const newMoodSum = current.moodSum + moodScore;
+      const newAverageMood = newMoodSum / newTotalLogs;
+      
+      await updateDoc(cityRef, {
+        totalLogs: newTotalLogs,
+        moodSum: newMoodSum,
+        averageMood: parseFloat(newAverageMood.toFixed(2)),
+        lastUpdated: Timestamp.now()
+      });
+      
+      console.log(`📊 Updated ${location.city} aggregate: ${newAverageMood.toFixed(1)}/10 (${newTotalLogs} logs)`);
+    } else {
+      // Create new city aggregate
+      await setDoc(cityRef, {
+        city: location.city,
+        region: location.region,
+        country: location.country,
+        countryCode: location.countryCode,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        totalLogs: 1,
+        moodSum: moodScore,
+        averageMood: parseFloat(moodScore.toFixed(2)),
+        lastUpdated: Timestamp.now(),
+        createdAt: Timestamp.now()
+      });
+      
+      console.log(`🆕 Created ${location.city} aggregate: ${moodScore}/10 (1 log)`);
+    }
+  } catch (error) {
+    console.error('❌ Error updating city mood aggregate:', error);
+    // Don't throw - we don't want to block mood logging if aggregation fails
+  }
+};
 
 /**
  * Save a mood log to Firestore
@@ -19,21 +129,49 @@ const USERS_COLLECTION = 'users';
  * @param {string} moodData.userId - User ID from Firebase Auth
  * @param {number} moodData.moodScore - Mood score (0-10)
  * @param {string} moodData.note - Optional note about the mood
- * @param {string} moodData.checkInType - 'morning' or 'evening'
+ * @param {string} moodData.checkInType - 'morning', 'evening', or 'anytime'
  * @param {string} moodData.eventId - Optional event ID if tagging an event
+ * @param {Object} moodData.location - Optional location data {latitude, longitude}
  * @returns {Promise<string>} - Document ID of the created mood log
  */
 export const saveMoodLog = async (moodData) => {
   try {
-    const docRef = await addDoc(collection(db, MOOD_LOGS_COLLECTION), {
+    const logData = {
       userId: moodData.userId,
       moodScore: moodData.moodScore,
       note: moodData.note || '',
-      checkInType: moodData.checkInType, // 'morning' or 'evening'
+      checkInType: moodData.checkInType, // 'morning', 'evening', or 'anytime'
       eventId: moodData.eventId || null,
-      timestamp: Timestamp.now(), // Firestore timestamp
-      createdAt: new Date().toISOString(), // Human-readable timestamp
-    });
+      timestamp: Timestamp.now(),
+      createdAt: new Date().toISOString(),
+    };
+
+    // Add location data if provided
+    if (moodData.location) {
+      const { latitude, longitude } = moodData.location;
+      
+      // Get city/region info
+      const geoInfo = await reverseGeocode(latitude, longitude);
+      
+      logData.location = {
+        latitude,
+        longitude,
+        city: geoInfo.city,
+        region: geoInfo.region,
+        country: geoInfo.country,
+        countryCode: geoInfo.countryCode
+      };
+      
+      console.log(`📍 Location added: ${geoInfo.city}, ${geoInfo.region}`);
+      
+      // Update city mood aggregate
+      await updateCityMoodAggregate({
+        moodScore: moodData.moodScore,
+        location: logData.location
+      });
+    }
+
+    const docRef = await addDoc(collection(db, MOOD_LOGS_COLLECTION), logData);
     
     console.log('✅ Mood log saved with ID:', docRef.id);
     return docRef.id;
@@ -172,4 +310,73 @@ export const calculateStreak = async (userId) => {
     console.error('❌ Error calculating streak:', error);
     return 0;
   }
+};
+
+/**
+ * Get all city mood aggregates (for map display)
+ * @param {number} minLogs - Minimum number of logs required (privacy threshold)
+ * @returns {Promise<Array>} - Array of city mood data
+ */
+export const getCityMoods = async (minLogs = 1) => {
+  try {
+    const q = query(
+      collection(db, CITY_MOODS_COLLECTION),
+      where('totalLogs', '>=', minLogs),
+      orderBy('totalLogs', 'desc')
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const cityMoods = [];
+    
+    querySnapshot.forEach((doc) => {
+      cityMoods.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+    
+    console.log(`🗺️ Found ${cityMoods.length} cities with ${minLogs}+ logs`);
+    return cityMoods;
+  } catch (error) {
+    console.error('❌ Error fetching city moods:', error);
+    throw error;
+  }
+};
+
+/**
+ * Subscribe to real-time city mood updates
+ * @param {Function} callback - Function called with updated city data
+ * @param {number} minLogs - Minimum number of logs required (privacy threshold)
+ * @returns {Function} - Unsubscribe function
+ */
+export const subscribeToCityMoods = (callback, minLogs = 1) => {
+  const q = query(
+    collection(db, CITY_MOODS_COLLECTION),
+    where('totalLogs', '>=', minLogs),
+    orderBy('totalLogs', 'desc')
+  );
+  
+  console.log('🔄 Subscribing to real-time city mood updates...');
+  
+  const unsubscribe = onSnapshot(
+    q,
+    (querySnapshot) => {
+      const cityMoods = [];
+      
+      querySnapshot.forEach((doc) => {
+        cityMoods.push({
+          id: doc.id,
+          ...doc.data()
+        });
+      });
+      
+      console.log(`🔄 Real-time update: ${cityMoods.length} cities`);
+      callback(cityMoods);
+    },
+    (error) => {
+      console.error('❌ Error in city moods subscription:', error);
+    }
+  );
+  
+  return unsubscribe;
 };
