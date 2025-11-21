@@ -323,4 +323,31 @@ git blame path/to/file.js
 
 **Remember**: GitHub is not just for sharing code. It's your backup, your time machine, and your safety net. Use it!
 
-**Last Updated**: November 8, 2025
+---
+
+## 🎉 Major Milestones
+
+### November 21, 2025: Real-Time Mood Map 🗺️
+**What we built**: Location-based mood aggregation system with real-time updates
+
+**Branch**: `redesign/hero-section` (contains both design updates + mood map feature)
+
+**Commits**:
+1. "🗺️ MAJOR: Real-time mood map with location-based aggregation"
+   - 10 files changed, 939 insertions(+), 98 deletions(-)
+   - Added 4 new Firestore functions (150+ lines)
+   - Updated MapPage with real-time listeners
+   - Implemented reverse geocoding with BigDataCloud API
+   - Created cityMoods collection for aggregates
+
+**Key Learning**: 
+- Real-time databases enable instant collaboration
+- Privacy through aggregation (individual data private, summaries public)
+- Client-side APIs must support CORS (OpenStreetMap didn't work, BigDataCloud did)
+- `onSnapshot` listeners provide live updates without polling
+
+**What's Next**: Event mood aggregation (tag events when logging moods)
+
+---
+
+**Last Updated**: November 21, 2025
