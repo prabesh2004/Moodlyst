@@ -25,7 +25,7 @@ const Navbar = ({ user }) => {
     <nav className={`fixed top-0 left-0 right-0 backdrop-blur-md shadow-sm z-50 transition-all duration-300 border-b border-gray-200 ${
       scrolled ? 'bg-white/95' : 'bg-white/90'
     }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+      <div className="max-w-[90rem] mx-auto px-6 sm:px-8 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="shrink-0 cursor-pointer" onClick={() => navigate('/')}>

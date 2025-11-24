@@ -54,7 +54,7 @@ const HowItWorks = () => {
 
   return (
     <section ref={ref} className="py-20 bg-gradient-to-b from-white to-gray-50">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
+      <div className="max-w-[90rem] mx-auto px-6 sm:px-8 lg:px-8">
         {/* Section Header */}
         <motion.div 
           className="text-center mb-16"
@@ -62,10 +62,10 @@ const HowItWorks = () => {
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="font-poppins text-3xl md:text-4xl font-semibold text-gray-900 mb-4">
+          <h2 className="font-poppins text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-900 mb-4">
             How It Works
           </h2>
-          <p className="font-poppins text-base text-gray-600 max-w-2xl mx-auto">
+          <p className="font-poppins text-base lg:text-lg text-gray-600 max-w-2xl mx-auto">
             Track your emotions, discover authentic experiences, and grow through self-awareness.
           </p>
         </motion.div>
@@ -85,20 +85,20 @@ const HowItWorks = () => {
             >
               {/* Card */}
               <motion.div 
-                className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300 h-full border border-gray-100"
+                className="bg-white rounded-2xl p-8 lg:p-10 shadow-lg hover:shadow-xl transition-shadow duration-300 h-full border border-gray-100"
                 whileHover={{ y: -8 }}
                 transition={{ duration: 0.3 }}
               >
                 {/* Step Number */}
                 <div className="absolute -top-4 -left-4">
-                  <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}>
-                    <span className="font-poppins text-white font-bold text-sm">{step.number}</span>
+                  <div className={`w-12 h-12 lg:w-16 lg:h-16 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}>
+                    <span className="font-poppins text-white font-bold text-sm lg:text-base">{step.number}</span>
                   </div>
                 </div>
 
                 {/* Emoji */}
                 <motion.div 
-                  className="text-6xl mb-6 mt-4"
+                  className="text-6xl lg:text-7xl mb-6 mt-4"
                   initial={{ scale: 0, rotate: -180 }}
                   animate={isInView ? { scale: 1, rotate: 0 } : { scale: 0, rotate: -180 }}
                   transition={{ 
@@ -112,10 +112,10 @@ const HowItWorks = () => {
                 </motion.div>
 
                 {/* Content */}
-                <h3 className="font-poppins text-xl font-semibold text-gray-900 mb-3">
+                <h3 className="font-poppins text-xl lg:text-2xl font-semibold text-gray-900 mb-3">
                   {step.title}
                 </h3>
-                <p className="font-poppins text-sm text-gray-600 leading-relaxed">
+                <p className="font-poppins text-sm lg:text-base text-gray-600 leading-relaxed">
                   {step.description}
                 </p>
               </motion.div>
@@ -136,7 +136,7 @@ const HowItWorks = () => {
           transition={{ duration: 0.6, delay: 0.8 }}
         >
           <motion.button
-            className="font-poppins text-sm font-medium bg-rose-600 text-white px-8 py-3 rounded-lg 
+            className="font-poppins text-sm lg:text-base font-medium bg-rose-600 text-white px-8 py-3 lg:px-10 lg:py-4 rounded-lg 
             hover:bg-rose-700 transition-all duration-300 shadow-md hover:shadow-lg"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
