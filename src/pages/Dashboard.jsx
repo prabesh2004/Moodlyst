@@ -718,22 +718,6 @@ const Dashboard = ({ user }) => {
         >
           <EventsWidget recentMood={recentMood} userLocation={userLocation} />
         </motion.div>
-
-        {/* Delete Today's Logs Button (Testing Only) */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
-          className="mt-8 flex justify-center"
-        >
-          <button
-            onClick={handleDeleteTodayLogs}
-            className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 flex items-center gap-2"
-          >
-            <span>🗑️</span>
-            <span>Delete Today's Logs (Testing)</span>
-          </button>
-        </motion.div>
       </div>
 
       {/* Mood Log Modal */}
