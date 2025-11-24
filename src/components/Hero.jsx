@@ -52,10 +52,10 @@ const Hero = ({ user }) => {
   };
 
   return (
-    <section className="min-h-screen pt-24 bg-white relative flex items-start overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-16 relative z-10 w-full">
+    <section className="min-h-screen pt-32 bg-white relative flex items-start overflow-hidden">
+      <div className="max-w-[90rem] mx-auto px-6 sm:px-8 lg:px-8 py-20 relative z-10 w-full">
         <motion.div 
-          className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
@@ -63,20 +63,20 @@ const Hero = ({ user }) => {
           {/* Left Column - Text Content */}
           <motion.div variants={textVariants}>
             <motion.h1 
-              className="font-poppins text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-900 mb-4 leading-tight"
+              className="font-poppins text-3xl md:text-4xl lg:text-5xl font-semibold text-gray-900 mb-6 leading-snug"
               variants={textVariants}
             >
               Discover Events Through Real Vibes, Track Your Emotional Journey
             </motion.h1>
             <motion.p 
-              className="font-poppins text-sm md:text-base text-gray-600 mb-6 leading-relaxed"
+              className="font-poppins text-lg md:text-xl text-gray-600 mb-8 leading-relaxed"
               variants={textVariants}
             >
               Check in twice daily, share what you're experiencing, and discover the best local events through authentic mood ratings. Get personal insights while exploring your community's emotional pulse.
             </motion.p>
             <motion.button 
-              className="font-poppins text-sm font-medium bg-rose-600 text-white px-5 py-2 rounded-lg 
-              hover:bg-rose-700 transition-all duration-300 shadow-sm hover:shadow-md"
+              className="font-poppins text-base font-medium bg-rose-600 text-white px-8 py-4 rounded-lg 
+              hover:bg-rose-700 transition-all duration-300 shadow-md hover:shadow-lg"
               variants={textVariants}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -88,20 +88,20 @@ const Hero = ({ user }) => {
 
           {/* Right Column - Mood Dashboard */}
           <motion.div 
-            className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100"
+            className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100"
             variants={cardVariants}
           >
             {/* Current Mood */}
             <motion.div 
-              className="mb-6"
+              className="mb-8"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              <h3 className="font-poppins text-sm font-medium text-gray-500 mb-3">Current City Mood</h3>
-              <div className="flex items-center gap-4">
+              <h3 className="font-poppins text-base font-medium text-gray-500 mb-4">Current City Mood</h3>
+              <div className="flex items-center gap-5">
                 <motion.div 
-                  className="text-5xl"
+                  className="text-6xl"
                   initial={{ scale: 0, rotate: -180 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{ 
@@ -116,24 +116,24 @@ const Hero = ({ user }) => {
                 <div>
                   <div className="flex items-baseline gap-2">
                     <motion.p 
-                      className="font-poppins text-3xl font-bold text-gray-900"
+                      className="font-poppins text-5xl font-bold text-gray-900"
                       initial={{ opacity: 0, scale: 0.5 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.5, delay: 0.6 }}
                     >
                       8.5
                     </motion.p>
-                    <p className="font-poppins text-lg text-gray-400">/10</p>
+                    <p className="font-poppins text-2xl text-gray-400">/10</p>
                   </div>
-                  <p className="font-poppins text-xs text-gray-500">Last updated: 5 min ago</p>
+                  <p className="font-poppins text-sm text-gray-500">Last updated: 5 min ago</p>
                 </div>
               </div>
             </motion.div>
 
             {/* 7-Day Bar Graph */}
             <div>
-              <h3 className="font-poppins text-sm font-medium text-gray-500 mb-3">Mood Trend (Last 7 Days)</h3>
-              <div className="h-40 bg-gradient-to-t from-rose-50 to-transparent rounded-lg flex items-end justify-between px-2 py-3 gap-1">
+              <h3 className="font-poppins text-base font-medium text-gray-500 mb-4">Mood Trend (Last 7 Days)</h3>
+              <div className="h-48 bg-gradient-to-t from-rose-50 to-transparent rounded-lg flex items-end justify-between px-3 py-4 gap-2">
                 {/* Bar chart with staggered animation */}
                 {[
                   { height: '65%', delay: 0.7 },
@@ -155,11 +155,11 @@ const Hero = ({ user }) => {
                   />
                 ))}
               </div>
-              <div className="flex justify-between mt-2 px-2">
+              <div className="flex justify-between mt-3 px-3">
                 {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, index) => (
                   <motion.span
                     key={day}
-                    className="font-poppins text-xs text-gray-400"
+                    className="font-poppins text-sm text-gray-400"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, delay: 0.7 + (index * 0.1) }}
@@ -175,18 +175,18 @@ const Hero = ({ user }) => {
 
       {/* Floating Emojis */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        <span className="absolute text-3xl opacity-20 animate-float top-[10%] left-[5%]">�</span>
-        <span className="absolute text-2xl opacity-15 animate-float-delayed-1 top-[20%] right-[15%]">😊</span>
-        <span className="absolute text-3xl opacity-20 animate-float-delayed-2 bottom-[30%] left-[10%]">🥰</span>
-        <span className="absolute text-2xl opacity-15 animate-float top-[60%] right-[8%]">😄</span>
-        <span className="absolute text-3xl opacity-20 animate-float-delayed-1 bottom-[15%] left-[70%]">💛</span>
-        <span className="absolute text-2xl opacity-15 animate-float-delayed-2 top-[40%] left-[85%]">🤗</span>
-        <span className="absolute text-3xl opacity-20 animate-float top-[75%] left-[20%]">😁</span>
-        <span className="absolute text-2xl opacity-15 animate-float-delayed-1 top-[50%] right-[30%]">🌈</span>
-        <span className="absolute text-3xl opacity-20 animate-float-delayed-2 bottom-[60%] right-[5%]">☺️</span>
-        <span className="absolute text-2xl opacity-15 animate-float top-[15%] left-[50%]">😍</span>
-        <span className="absolute text-3xl opacity-20 animate-float-delayed-1 top-[35%] left-[30%]">💖</span>
-        <span className="absolute text-2xl opacity-15 animate-float-delayed-2 bottom-[40%] right-[25%]">😃</span>
+        <span className="absolute text-5xl opacity-20 animate-float top-[10%] left-[5%]">💛</span>
+        <span className="absolute text-4xl opacity-15 animate-float-delayed-1 top-[20%] right-[15%]">😊</span>
+        <span className="absolute text-5xl opacity-20 animate-float-delayed-2 bottom-[30%] left-[10%]">🥰</span>
+        <span className="absolute text-4xl opacity-15 animate-float top-[60%] right-[8%]">😄</span>
+        <span className="absolute text-5xl opacity-20 animate-float-delayed-1 bottom-[15%] left-[70%]">💛</span>
+        <span className="absolute text-4xl opacity-15 animate-float-delayed-2 top-[40%] left-[85%]">🤗</span>
+        <span className="absolute text-5xl opacity-20 animate-float top-[75%] left-[20%]">😁</span>
+        <span className="absolute text-4xl opacity-15 animate-float-delayed-1 top-[50%] right-[30%]">🌈</span>
+        <span className="absolute text-5xl opacity-20 animate-float-delayed-2 bottom-[60%] right-[5%]">☺️</span>
+        <span className="absolute text-4xl opacity-15 animate-float top-[15%] left-[50%]">😍</span>
+        <span className="absolute text-5xl opacity-20 animate-float-delayed-1 top-[35%] left-[30%]">💖</span>
+        <span className="absolute text-4xl opacity-15 animate-float-delayed-2 bottom-[40%] right-[25%]">😃</span>
       </div>
     </section>
   );
