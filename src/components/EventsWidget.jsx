@@ -109,20 +109,11 @@ const EventsWidget = ({ recentMood, userLocation }) => {
           </p>
         </div>
         
-        <div className="flex items-center gap-3">
-          {!import.meta.env.VITE_TICKETMASTER_API_KEY && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
-              <p className="text-xs text-yellow-700 font-medium">Demo Mode</p>
-            </div>
-          )}
-          
-          <button
-            onClick={() => navigate('/events')}
-            className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-lg transition-colors text-sm"
-          >
-            View All Events 🎉
-          </button>
-        </div>
+        {!import.meta.env.VITE_TICKETMASTER_API_KEY && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
+            <p className="text-xs text-yellow-700 font-medium">Demo Mode</p>
+          </div>
+        )}
       </div>
 
       {isLoading ? (
@@ -232,6 +223,17 @@ const EventsWidget = ({ recentMood, userLocation }) => {
               </a>
             </motion.div>
           ))}
+          </div>
+
+          {/* View All Events Button */}
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={() => navigate('/events')}
+              className="bg-rose-600 hover:bg-rose-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 flex items-center gap-2"
+            >
+              <span>View All Events</span>
+              <span>→</span>
+            </button>
           </div>
         </>
       )}

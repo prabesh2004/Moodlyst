@@ -289,7 +289,7 @@ const Dashboard = ({ user }) => {
     <div className="min-h-screen bg-linear-to-br from-rose-50 to-pink-50">
       {/* Header/Navbar */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200">
-        <div className="max-w-[90rem] mx-auto px-6 sm:px-8 lg:px-8 py-3 flex items-center justify-between">
+        <div className="max-w-360 mx-auto px-3 sm:px-8 lg:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <h1 
               className="text-xl font-bold text-gray-900 cursor-pointer hover:text-rose-500 transition-colors"
@@ -400,7 +400,7 @@ const Dashboard = ({ user }) => {
       </nav>
 
       {/* Main Content */}
-      <div className="max-w-[90rem] mx-auto px-6 sm:px-8 lg:px-8 py-12">
+      <div className="max-w-360 mx-auto px-3 sm:px-8 lg:px-8 py-12">
         {/* Welcome Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -422,12 +422,12 @@ const Dashboard = ({ user }) => {
           transition={{ delay: 0.1 }}
           className="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-gray-100"
         >
-          <div className="flex items-start justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
             <div>
               <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Today's Check-Ins</h3>
               <p className="text-gray-600 text-sm lg:text-base">Log your mood twice daily to track your journey</p>
             </div>
-            <div className="bg-rose-50 border border-rose-200 rounded-2xl px-4 py-2">
+            <div className="bg-rose-50 border border-rose-200 rounded-2xl px-4 py-2 self-start">
               <div className="flex items-center gap-2">
                 <span className="text-2xl lg:text-3xl">🔥</span>
                 <div>
@@ -717,6 +717,22 @@ const Dashboard = ({ user }) => {
           className="mt-8"
         >
           <EventsWidget recentMood={recentMood} userLocation={userLocation} />
+        </motion.div>
+
+        {/* Delete Today's Logs Button (Testing Only) */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+          className="mt-8 flex justify-center"
+        >
+          <button
+            onClick={handleDeleteTodayLogs}
+            className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 flex items-center gap-2"
+          >
+            <span>🗑️</span>
+            <span>Delete Today's Logs (Testing)</span>
+          </button>
         </motion.div>
       </div>
 
