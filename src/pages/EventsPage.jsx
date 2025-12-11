@@ -184,7 +184,7 @@ const EventsPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-rose-50">
       {/* Dashboard-style Navbar - Extra Compact */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 py-2.5 flex items-center justify-between">
+        <div className="max-w-[90rem] mx-auto px-6 sm:px-8 lg:px-8 py-2.5 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <h1 
               className="text-lg font-bold text-gray-900 cursor-pointer hover:text-rose-500 transition-colors"
@@ -277,7 +277,7 @@ const EventsPage = () => {
 
       {/* Search & Filter Bar - Compact with visible search bar */}
       <div className="border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-2">
+        <div className="max-w-[90rem] mx-auto px-6 sm:px-8 lg:px-8 py-2">
           <div className="flex items-center justify-between gap-2">
             {/* Search Bar - Always visible, compact */}
             <div className="flex-1 max-w-md relative">
@@ -418,7 +418,7 @@ const EventsPage = () => {
       </div>
 
       {/* Events Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-[90rem] mx-auto px-6 sm:px-8 lg:px-8 py-8">
         {/* Results Count */}
         <div className="mb-6 flex items-center justify-between">
           <p className="text-gray-600">

@@ -289,7 +289,7 @@ const Dashboard = ({ user }) => {
     <div className="min-h-screen bg-linear-to-br from-rose-50 to-pink-50">
       {/* Header/Navbar */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+        <div className="max-w-360 mx-auto px-3 sm:px-8 lg:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <h1 
               className="text-xl font-bold text-gray-900 cursor-pointer hover:text-rose-500 transition-colors"
@@ -400,14 +400,14 @@ const Dashboard = ({ user }) => {
       </nav>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-12">
+      <div className="max-w-360 mx-auto px-3 sm:px-8 lg:px-8 py-12">
         {/* Welcome Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="bg-white rounded-3xl shadow-xl p-8 mb-8"
         >
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
             Welcome back, {user?.displayName?.split(' ')[0]}! 👋
           </h2>
           <p className="text-gray-600">
@@ -422,19 +422,19 @@ const Dashboard = ({ user }) => {
           transition={{ delay: 0.1 }}
           className="bg-white rounded-3xl shadow-xl p-8 mb-8 border border-gray-100"
         >
-          <div className="flex items-start justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Today's Check-Ins</h3>
-              <p className="text-gray-600 text-sm">Log your mood twice daily to track your journey</p>
+              <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">Today's Check-Ins</h3>
+              <p className="text-gray-600 text-sm lg:text-base">Log your mood twice daily to track your journey</p>
             </div>
-            <div className="bg-rose-50 border border-rose-200 rounded-2xl px-4 py-2">
+            <div className="bg-rose-50 border border-rose-200 rounded-2xl px-4 py-2 self-start">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">🔥</span>
+                <span className="text-2xl lg:text-3xl">🔥</span>
                 <div>
-                  <p className="text-rose-600 font-bold text-lg">
+                  <p className="text-rose-600 font-bold text-lg lg:text-xl">
                     {isLoading ? '...' : `${streak} Day${streak !== 1 ? 's' : ''}`}
                   </p>
-                  <p className="text-rose-500 text-xs">Current Streak</p>
+                  <p className="text-rose-500 text-xs lg:text-sm">Current Streak</p>
                 </div>
               </div>
             </div>
@@ -451,10 +451,10 @@ const Dashboard = ({ user }) => {
                 <div className={`rounded-full p-3 ${
                   canLogMorning() || todayCheckIns.morning ? 'bg-white/30' : 'bg-white/20'
                 }`}>
-                  <span className="text-3xl">🌅</span>
+                  <span className="text-3xl lg:text-4xl">🌅</span>
                 </div>
                 <div>
-                  <h4 className="text-white font-bold text-lg">Morning (6-12 AM)</h4>
+                  <h4 className="text-white font-bold text-lg lg:text-xl">Morning (6-12 AM)</h4>
                   <p className={`text-sm ${
                     canLogMorning() || todayCheckIns.morning ? 'text-white/90' : 'text-white/70'
                   }`}>
@@ -466,8 +466,8 @@ const Dashboard = ({ user }) => {
                 {todayCheckIns.morning ? (
                   <>
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl">{getMoodEmoji(todayCheckIns.morning.moodScore)}</span>
-                      <span className="text-white font-bold text-2xl">
+                      <span className="text-2xl lg:text-3xl">{getMoodEmoji(todayCheckIns.morning.moodScore)}</span>
+                      <span className="text-white font-bold text-2xl lg:text-3xl">
                         {todayCheckIns.morning.moodScore}/10
                       </span>
                     </div>
@@ -480,7 +480,7 @@ const Dashboard = ({ user }) => {
                     <span className="text-white/80 text-sm">Available now</span>
                     <button 
                       onClick={() => openMoodModal('morning')}
-                      className="bg-white text-rose-600 px-4 py-2 rounded-full font-semibold hover:bg-rose-50 transition-all text-sm"
+                      className="bg-white text-rose-600 px-4 py-2 rounded-full font-semibold hover:bg-rose-50 transition-all text-sm lg:text-base"
                     >
                       Log Now
                     </button>
@@ -510,10 +510,10 @@ const Dashboard = ({ user }) => {
                 <div className={`rounded-full p-3 ${
                   canLogEvening() || todayCheckIns.evening ? 'bg-white/10' : 'bg-white/5'
                 }`}>
-                  <span className="text-3xl">🌙</span>
+                  <span className="text-3xl lg:text-4xl">🌙</span>
                 </div>
                 <div>
-                  <h4 className="text-white font-bold text-lg">Evening (8 PM-11:59 PM)</h4>
+                  <h4 className="text-white font-bold text-lg lg:text-xl">Evening (8 PM-11:59 PM)</h4>
                   <p className={`text-sm ${
                     canLogEvening() || todayCheckIns.evening ? 'text-white/80' : 'text-white/60'
                   }`}>
@@ -525,8 +525,8 @@ const Dashboard = ({ user }) => {
                 {todayCheckIns.evening ? (
                   <>
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl">{getMoodEmoji(todayCheckIns.evening.moodScore)}</span>
-                      <span className="text-white font-bold text-2xl">
+                      <span className="text-2xl lg:text-3xl">{getMoodEmoji(todayCheckIns.evening.moodScore)}</span>
+                      <span className="text-white font-bold text-2xl lg:text-3xl">
                         {todayCheckIns.evening.moodScore}/10
                       </span>
                     </div>
@@ -539,7 +539,7 @@ const Dashboard = ({ user }) => {
                     <span className="text-white/70 text-sm">Available now</span>
                     <button 
                       onClick={() => openMoodModal('evening')}
-                      className="bg-white text-rose-800 px-4 py-2 rounded-full font-semibold hover:bg-rose-50 transition-all text-sm"
+                      className="bg-white text-rose-800 px-4 py-2 rounded-full font-semibold hover:bg-rose-50 transition-all text-sm lg:text-base"
                     >
                       Log Now
                     </button>
@@ -598,7 +598,7 @@ const Dashboard = ({ user }) => {
             <h3 className="text-2xl font-bold text-gray-900 mb-1">
               {isLoading ? 'Loading...' : recentMood ? `${recentMood.moodScore}/10` : 'No data'}
             </h3>
-            <p className="text-gray-600">Your Recent Mood</p>
+            <p className="text-gray-600 lg:text-lg">Your Recent Mood</p>
           </motion.div>
 
           <motion.div
@@ -607,11 +607,11 @@ const Dashboard = ({ user }) => {
             transition={{ delay: 0.3 }}
             className="bg-white rounded-2xl shadow-lg p-6"
           >
-            <div className="text-4xl mb-3">📊</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">
+            <div className="text-4xl lg:text-5xl mb-3">📊</div>
+            <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">
               {isLoading ? 'Loading...' : `${streak} day${streak !== 1 ? 's' : ''}`}
             </h3>
-            <p className="text-gray-600">Current Streak</p>
+            <p className="text-gray-600 lg:text-lg">Current Streak</p>
           </motion.div>
 
           <motion.div
@@ -620,9 +620,9 @@ const Dashboard = ({ user }) => {
             transition={{ delay: 0.4 }}
             className="bg-white rounded-2xl shadow-lg p-6"
           >
-            <div className="text-4xl mb-3">🎯</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">8.2/10</h3>
-            <p className="text-gray-600">Community Average</p>
+            <div className="text-4xl lg:text-5xl mb-3">🎯</div>
+            <h3 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">8.2/10</h3>
+            <p className="text-gray-600 lg:text-lg">Community Average</p>
           </motion.div>
         </div>
 
