@@ -119,11 +119,11 @@ const MapPage = () => {
         >
           <MapUpdater center={mapCenter} zoom={mapZoom} />
         
-        {/* Map Tiles - Google Maps Style */}
+        {/* Map Tiles - OpenStreetMap (Free, no API key required) */}
         <TileLayer
-          attribution='&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-          url="https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png"
-          maxZoom={20}
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maxZoom={19}
         />
 
         {/* User Location Marker */}
