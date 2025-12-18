@@ -1,24 +1,69 @@
 # 🎭 MOODLYST - AI Context & Project Memory
 
 > **IMPORTANT**: AI Assistant must read this file before performing any operations!
-> **Last Updated:** November 24, 2025  
+> **Last Updated:** December 18, 2025  
 > **Purpose:** This file helps AI assistants maintain context about the project's vision, architecture, and user preferences across conversations.
 
 ## 📋 Project Overview
 
 **Name**: Moodlyst  
 **Type**: Mood tracking app with event discovery and real-time mood mapping  
-**Tech Stack**: React + Vite, Firebase (Firestore), Tailwind CSS, Framer Motion, Leaflet Maps  
+**Tech Stack**: React + Vite, Firebase (Firestore), Tailwind CSS, Framer Motion, Leaflet Maps, Google Gemini AI  
 **Current Branch**: `redesign/hero-section`  
-**Last Major Update**: UI Scaling & Responsive Design Optimization (Nov 24, 2025)
+**Last Major Update**: AI-Powered Insights Feature (Dec 18, 2025)
 
-## 🎯 CURRENT STATUS (Nov 24, 2025)
+## 🎯 CURRENT STATUS (Dec 18, 2025)
 
-**COMPLETED:** UI Scaling & Responsive Design Optimization ✅  
-**Goal:** Fix browser zoom issues and optimize UI for all devices (mobile, tablet, desktop)  
-**Status:** Desktop optimization complete, mobile fixes pending  
+**COMPLETED:** AI-Powered Your Insights Feature ✅  
+**Goal:** Add personalized mood insights using Google Gemini AI  
+**Status:** Fully implemented and tested with free Gemini API  
 
-**What's New (Nov 24, 2025):**
+**What's New (Dec 18, 2025):**
+
+### ✨ AI-Powered Your Insights Feature
+**Description:** Users can now generate personalized mood insights powered by Google Gemini AI
+
+**Features Implemented:**
+- **Gemini AI Integration**: Uses free Google Gemini API (gemini-pro model)
+- **Provider-Agnostic Architecture**: Easy to swap to AWS Bedrock, SageMaker, or OpenAI later
+- **Mood Analysis**: Analyzes user's last 5 mood logs to generate insights
+- **Smart Analysis Includes**:
+  - Recent mood summary (2-3 sentence overview of mood patterns)
+  - Best time of day detection (morning, evening, afternoon, or consistent)
+  - 3 personalized actionable suggestions
+  - Trend indicator (improving, declining, stable)
+
+**UI Components:**
+- **YourInsights.jsx**: Beautiful gradient card component with:
+  - Summary section (white card with mood overview)
+  - Best Time section (with emoji indicator for time of day)
+  - Suggestions section (collapsible with "💡" icons)
+  - Refresh button to regenerate insights
+  - Loading state with animated emoji
+- **Dashboard Integration**: 
+  - Quick action card in grid layout with "Generate Insights" button
+  - Results display below when insights are generated
+  - Button disabled if no mood logs exist
+  - Loading indicator during AI processing
+
+**API & Services:**
+- **aiService.js**: Abstracted AI service layer with:
+  - `generateInsights(moodLogs)`: Main function to generate insights
+  - `checkAIHealth()`: Verify API configuration
+  - Provider routing system (`AI_PROVIDER` switch)
+  - Supports Gemini, Bedrock, OpenAI models
+  - Error handling and fallbacks
+
+**Environment Configuration:**
+- Added `VITE_GEMINI_API_KEY` to .env
+- Free tier limits: 60 calls/minute
+- No cost for MVP development
+
+**Technical Implementation:**
+- Installed `@google/generative-ai` package
+- Prompt engineering for specific, helpful insights
+- JSON parsing of AI responses
+- Mobile-responsive UI with Framer Motion animations
 
 ### UI Scaling & Browser Zoom Fix
 - **Issue Discovered**: Entire app was designed at 125% zoom in Brave browser (user didn't realize)
@@ -747,12 +792,12 @@ git push origin main # Push to GitHub
 ## 🎯 IMMEDIATE NEXT STEPS (Priority Order)
 
 1. ✅ **Today's Check-In Card** - IMPLEMENTED (Dashboard feature)
-2. ⏳ **Recent Mood Timeline** - PLANNED (See roadmap below)
-3. ⏳ **Discover Events Near You** - PLANNED (See roadmap below)
-4. **Mood Logging System** - Build the core data collection feature
-5. **Firestore Integration** - Set up database, create schema
-6. **Dashboard Analytics** - Show user's mood history with charts
-7. **Event Tagging** - Allow users to tag events when logging mood
+2. ✅ **Recent Mood Timeline** - IMPLEMENTED (with bar chart visualization)
+3. ✅ **Discover Events Near You** - IMPLEMENTED (EventsWidget with mood ratings)
+4. ✅ **Your Insights (AI-Powered)** - IMPLEMENTED (Google Gemini integration)
+5. ⏳ **Event Mood Aggregation** - PARTIALLY DONE (city moods working, event moods queued)
+6. ⏳ **Real-time Map Updates** - IMPLEMENTED (subscribeToCityMoods working)
+7. ⏳ **Push Notifications** - PLANNED (10 AM & 10 PM reminders)
 8. **Push Notifications** - 10 AM & 10 PM reminders
 9. **Real-time Map Updates** - Show actual mood data on map
 10. **Event Discovery Page** - List events with mood scores
