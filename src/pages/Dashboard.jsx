@@ -7,6 +7,8 @@ import { getTodayCheckIns, calculateStreak, getUserMoodLogs, deleteTodaysMoodLog
 import MoodLogModal from '../components/MoodLogModal';
 import MoodTimeline from '../components/MoodTimeline';
 import EventsWidget from '../components/EventsWidget';
+import YourInsights from '../components/YourInsights';
+import { generateInsights } from '../services/aiService';
 
 const Dashboard = ({ user }) => {
   const navigate = useNavigate();
@@ -25,6 +27,10 @@ const Dashboard = ({ user }) => {
   const [userLocation, setUserLocation] = useState(null);
   const [locationStatus, setLocationStatus] = useState('idle');
   const [locationName, setLocationName] = useState('');
+  
+  // AI Insights state
+  const [insights, setInsights] = useState(null);
+  const [insightsLoading, setInsightsLoading] = useState(false);
 
   const fetchLocationName = async (latitude, longitude) => {
     try {
@@ -268,6 +274,30 @@ const Dashboard = ({ user }) => {
     } catch (error) {
       console.error('Error deleting logs:', error);
       alert('❌ Error deleting logs. Check console for details.');
+    }
+  };
+
+  // Generate AI Insights from last 5 mood logs
+  const handleGenerateInsights = async () => {
+    if (allMoodLogs.length === 0) {
+      alert('You need to log at least one mood to generate insights!');
+      return;
+    }
+
+    setInsightsLoading(true);
+    try {
+      // Get last 5 mood logs (or less if user has fewer)
+      const last5Moods = allMoodLogs.slice(0, 5);
+      console.log('🔄 Generating insights from:', last5Moods.length, 'mood logs');
+      
+      const result = await generateInsights(last5Moods);
+      console.log('✅ Insights generated:', result);
+      setInsights(result);
+    } catch (error) {
+      console.error('❌ Error generating insights:', error);
+      alert('Failed to generate insights. Please try again later.');
+    } finally {
+      setInsightsLoading(false);
     }
   };
 
@@ -693,17 +723,49 @@ const Dashboard = ({ user }) => {
             <div className="text-5xl mb-4">📈</div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Your Insights</h3>
             <p className="text-gray-600 mb-4">
-              View your mood patterns and get personalized recommendations
+              Get AI-powered insights from your recent mood patterns
             </p>
-            <span className="text-gray-400 font-semibold">Coming Soon...</span>
+            <button
+              onClick={handleGenerateInsights}
+              disabled={insightsLoading || allMoodLogs.length === 0}
+              className="text-rose-500 font-semibold hover:gap-2 flex items-center gap-1 transition-all disabled:text-gray-400 disabled:cursor-not-allowed"
+            >
+              {insightsLoading ? (
+                <>
+                  <span className="animate-spin">⏳</span> Generating...
+                </>
+              ) : allMoodLogs.length === 0 ? (
+                'Log a mood first'
+              ) : (
+                <>
+                  Generate Insights <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                </>
+              )}
+            </button>
           </div>
         </motion.div>
+
+        {/* AI Insights Results - Show below when generated */}
+        {insights && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mt-8"
+          >
+            <YourInsights 
+              insights={insights}
+              loading={false}
+              onGenerate={handleGenerateInsights}
+            />
+          </motion.div>
+        )}
 
         {/* Mood Timeline Widget */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: 0.8 }}
           className="mt-8"
         >
           <MoodTimeline moodLogs={allMoodLogs} />
@@ -713,7 +775,7 @@ const Dashboard = ({ user }) => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.9 }}
           className="mt-8"
         >
           <EventsWidget recentMood={recentMood} userLocation={userLocation} />
@@ -723,7 +785,7 @@ const Dashboard = ({ user }) => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
+          transition={{ delay: 1.0 }}
           className="mt-8 flex justify-center"
         >
           <button
