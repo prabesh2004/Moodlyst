@@ -26,3 +26,11 @@ dist-ssr
 # Personal learning and context files
 learn.md
 
+# Secrets and env files
+.env
+.env.*
+
+# Ignore markdown notes except README
+*.md
+!README.md
+
